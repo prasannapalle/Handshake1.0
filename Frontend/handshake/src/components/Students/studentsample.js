@@ -158,7 +158,7 @@ class UpdateProfile extends Component {
                     "collegeName"
                   )
                 }
-                name="collegeName"
+                name="collegeName" 
                 class="editableinput3"
                 type="text"
                 placeholder={studentAllEduDetailResult.collegeName}

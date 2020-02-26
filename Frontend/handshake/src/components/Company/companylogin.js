@@ -4,110 +4,322 @@ import axios from 'axios';
 import cookie from 'react-cookies';
 import {Redirect} from 'react-router';
 
-//Define a Login Component
+
+
 class CompanyLogin extends Component {
-    //call the constructor method
-    constructor(props){
-        //Call the constrictor of Super class i.e The Component
-        super(props);
-        //maintain the state required for this component
-        this.state = {
-            username : "",
-            password : "",
-            errmsg:null,
-            authFlag : false
-        }
-        //Bind the handlers to this classcomponentWillMount
+    constructor(props) {
+      super(props);
+      this.handleLoginClick = this.handleLoginClick.bind(this);
+      this.handleLogoutClick = this.handleLogoutClick.bind(this);
+      this.companynamehandler = this.companynamehandler.bind(this);
+      this.emailidhandler = this.emailidhandler.bind(this);
+      this.passwordhandler = this.passwordhandler.bind(this);
         this.usernameChangeHandler = this.usernameChangeHandler.bind(this);
         this.passwordChangeHandler = this.passwordChangeHandler.bind(this);
         this.submitLogin = this.submitLogin.bind(this);
-    }
-    //Call the Will Mount to set the auth Flag to false
-    componentWillMount(){
-        this.setState({
-            authFlag : false
-        })
-    }
-    //username change handler to update state variable with the text entered by the user
+      this.locationhandler = this.locationhandler.bind(this);
+      this.submitSignup = this.submitSignup.bind(this);
+      this.state = {isLoggedIn: false,
+        company :"",
+        emailid : "",
+        password : "",
+        usrname : "",
+        usrpwd : "",
+        location : "",
+        authFlag : false,
+        companyname : "",
+        msg : ""};
+      }    
     usernameChangeHandler = (e) => {
-        this.setState({
-            username : e.target.value
-        })
-    }
-    //password change handler to update state variable with the text entered by the user
+                this.setState({
+                    usrname : e.target.value
+                })
+            }
+
     passwordChangeHandler = (e) => {
+                this.setState({
+                    usrpwd : e.target.value
+                })
+            }
+
+    companynamehandler(e) {
+        
         this.setState({
-            password : e.target.value
-        })
+            company: e.target.value
+        });
+
     }
-    //submit Login handler to send a request to the node backend
+
+    
+    emailidhandler = (e) => {
+        
+        this.setState({
+            emailid: e.target.value
+        });
+
+    }
+
+    passwordhandler = (e) => {
+        
+        this.setState({
+            password: e.target.value
+        });
+
+    }  
+
+
+    locationhandler = (e) => {
+        
+        this.setState({
+            location: e.target.value
+        });
+
+    }  
+
     submitLogin = (e) => {
-       
+        var headers = new Headers();
         //prevent page from refresh
         e.preventDefault();
         const data = {
-            username : this.state.username,
-            password : this.state.password
+            username : this.state.usrname,
+            password : this.state.usrpwd
         }
-        console.log("inside axios",data);
+        console.log("data from axios", data);
         //set the with credentials to true
         axios.defaults.withCredentials = true;
         //make a post request with the user data
         axios.post('http://localhost:3001/companylogin',data)
             .then(response => {
                 console.log("Status Code : ",response.status);
-                if(response.data === "loginerror"){
+                console.log("response data from axios", response.data);
+                sessionStorage.setItem("companyname",data.username);
+                if(response.data){
                     this.setState({
-                        authFlag : false,
-                        errmsg: "Incorrect Credentials"   
+                        authFlag : true,
+                        companyname : sessionStorage.getItem("companyname"),
+                        errmsg:  <Redirect to= "/companydashboard"/>     
                     })
+
+                    console.log("in login axios",this.state.companyname);
                 }
                 else{
                     this.setState({
-                        authFlag : true,
+                        authFlag : false,
+                        errmsg : "Incorrect Credentials"
                         
                     })
                 }
             });
     }
 
-    render(){
-        //redirect based on successful login
-        let redirectVar = null;
-        if(cookie.load('cookie')){
-            redirectVar = <Redirect to= "/home"/>
+    submitSignup = (e) => {
+        var headers = new Headers();
+        //prevent page from refresh
+        e.preventDefault();
+
+        const data = {
+            company : this.state.company,
+            emailid : this.state.emailid,
+            password : this.state.password,
+            location : this.state.location
         }
-        else
-        {
-            if(this.state.errmsg)
-            redirectVar = <div>Incorrect Credentials</div>
+
+        //set the with credentials to true
+        axios.defaults.withCredentials = true;
+        //make a post request with the user data
+        axios.post('http://localhost:3001/companysignup',data)
+            .then(response => {
+                console.log("Status Code : ",response.status);
+                console.log("response data from axios", response.data);
+                sessionStorage.setItem("companyname",data.company)
+                if(response.data === "success"){
+                    this.setState({
+                        authFlag : true,
+                        msg: "Company Registration Successfull" ,
+                        companyname : sessionStorage.getItem("companyname")
+                    })
+                    console.log("successfull registration",this.state.companyname);
+                }
+                else{
+                    this.setState({
+                        authFlag : false,
+                    })
+                }
+            });
+    }
+
+
+    handleLoginClick() {
+      this.setState({isLoggedIn: true});
+    }
+  
+    handleLogoutClick() {
+      this.setState({isLoggedIn: false});
+    }
+  
+    render() {
+      const isLoggedIn = this.state.isLoggedIn;
+      var button;
+      var signupform;
+      var loginform;
+      var rendermsg;
+      let redirectVar = null;
+     
+
+      function LoginButton(props) {
+        return (
+          <div align="center"><button align="center"  style={{marginLeft : "230px"}} class="btn btn-primary" onClick={props.onClick}>
+           <span>SignUp</span>
+          </button>   
+          </div>         
+        );
+      }
+      
+      function LogoutButton(props) {
+        return (
+          <button onClick={props.onClick} class="btn btn-primary">
+            Back to Login 
+                      </button>
+        );
+      }
+
+
+      function Greeting(props) {
+        const isLoggedIn = props.isLoggedIn;
+        if (isLoggedIn) {
+          return <UserGreeting />;
         }
+        return <GuestGreeting />;
+      }
+
+
+      function UserGreeting(props) {
+      return <div></div>;
+     }
+      
+      function GuestGreeting(props) {
+        return <h1 align="center">Are you a new User?Please sign up.</h1>;
+      }
+
+      if (isLoggedIn) {
+        button = <LogoutButton onClick={this.handleLogoutClick} />;
+
+        
        
-        return(
-            <div>
-                {redirectVar}
-            <div class="container">
-                
-                <div class="login-form">
-                    <div class="main-div">
-                        <div class="panel">
-                            <h2>Admin Login</h2>
-                            <p>Please enter your username and password</p>
+        signupform = 
+        
+        (   
+        <div class="container register-form">
+           
+            <div><h1>{this.state.msg}</h1></div>
+        <div class="form">
+            <div class="note">
+                <h2>Company Registration Form</h2>
+            </div>
+
+            <div class="form-content">
+               
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                           
+                            <input type="text" class="form-control" onChange = {this.companynamehandler}  placeholder="Enter company name *" name="company"  required/>
                         </div>
+                        </div>
+                        </div>
+                        <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
                         
-                            <div class="form-group">
-                                <input onChange = {this.usernameChangeHandler} type="text" class="form-control" name="username" placeholder="Username"/>
-                            </div>
-                            <div class="form-group">
-                                <input onChange = {this.passwordChangeHandler} type="password" class="form-control" name="password" placeholder="Password"/>
-                            </div>
-                            <button onClick = {this.submitLogin} class="btn btn-primary">Login</button>                 
+                            <input type="text" class="form-control" onChange = {this.emailidhandler}  placeholder="Enter Email ID" name="emailid"  required/>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="password" class="form-control" onChange = {this.passwordhandler}  placeholder="Enter Password" name="password" required/>
+                        </div>
+                        </div>
+                        </div>
+                        <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <input type="password" class="form-control"  onChange = {this.passwordhandler} placeholder="Confirm Password" name="password"  required/>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="row">
+                    <div class="col-md-6">
+                    <div class="form-group">
+                    <input type="text" class="form-control" onChange = {this.locationhandler}  placeholder="Enter Location" name="location"  required/>
+                   </div>
+                    </div>
+                    </div>
+                    <div>
+                    <button  onClick = {this.submitSignup} class="btn btn-primary">SignUp</button>    
                     </div>
                 </div>
-            </div>
-            </div>
-        )
+                </div>
+                </div>
+        );         
+        
+      } 
+      else {
+          
+        button = <LoginButton onClick={this.handleLoginClick} />;
+       
+        
+            console.log("logged In inside console")
+           
+        
+        loginform =  (<div class="container">
+              
+                  <div class="login-form">
+                         <div class="main-div">
+                              <div class="panel">
+                                   <h2>Admin Login</h2>
+                                   <p>Please enter your username and password</p>
+                                </div>
+                                
+                                 <div>
+                                       <input onChange = {this.usernameChangeHandler} type="text" class="form-control" name="usrname" placeholder="Username"/>
+                                  </div>
+                                  <br></br>
+                                   <div>
+                                     <input onChange = {this.passwordChangeHandler} type="password" class="form-control" name="usrpwd" placeholder="Password"/>
+                                   </div>
+                                   <br></br>
+                                  <button onClick = {this.submitLogin} class="btn btn-primary">Login</button>        
+                          </div>
+                       </div>
+        
+                   </div>);
+      }
+  
+      if(this.state.errmsg === 'success'){
+        redirectVar = <Redirect to= "/companydashboard" />
+        
+       console.log("yes in console errmsg");
+      }
+
+      
+
+      return (
+        <div>
+            {redirectVar}
+        <div>
+             {this.state.errmsg}
+          <Greeting isLoggedIn={isLoggedIn} />
+          {button}
+          {signupform}
+          {loginform}
+        </div>
+        
+        </div>  
+      );
     }
-}
-//export Login Component
+  }
+  
+
 export default CompanyLogin;

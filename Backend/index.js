@@ -37,6 +37,7 @@ app.use(session({
   activeDuration      :  5 * 60 * 1000
 }));
 
+var sessvar;
 // app.use(bodyParser.urlencoded({
 //     extended: true
 //   }));
@@ -52,12 +53,12 @@ app.use(function(req, res, next) {
   next();
 });
 
-var Users = [{
+var User = {
     username : "admin",
     password : "admin"
-}]
+}
 
-var books = [
+var books = [ 
   {"BookID" : "1", "Title" : "Book 1", "Author" : "Author 1"},
   {"BookID" : "2", "Title" : "Book 2", "Author" : "Author 2"},
   {"BookID" : "3", "Title" : "Book 3", "Author" : "Author 3"}
@@ -81,19 +82,44 @@ app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
 
 app.post('/companylogin',function(req,res){
-    
-  // Object.keys(req.body).forEach(function(key){
-  //     req.body = JSON.parse(key);
-  // });
-  // var username = req.body.username;
-  // var password = req.body.password;
-  console.log("Inside Login Post Request");
-  //console.log("Req Body : ", username + "password : ",password);
-  console.log("Req Body : ",req.body);  
+console.log("Inside Company Login Post Request");
+//console.log("Req Body : ", username + "password : ",password);
+console.log("Req Body : ",req.body);
+sessvar = req.session;
+let email= req.body.username;
+let password1 = req.body.password;
+sessvar.email = email;
+
+con.query('SELECT * FROM company WHERE emailid = ?',[email], function (error, results, fields) {
+if (error) {
+console.log("error ocurred",error);
+res.send("err");
+}
+else
+{
+if(results.length > 0){
+if(results[0].pwd === password1){
+console.log('success');
+console.log(results);
+res.cookie('companydata',results);
+sessvar.username = results[0].companyname;
+sessvar.company_id = results[0].company_id;
+res.cookie('cookie',results,{maxAge: 900000, httpOnly: false, path : '/'});
+console.log(results[0].company_id);
+res.sendStatus(results[0].company_id);
+} 
+
+else{
+res.send("fail2");
+console.log('wrong password');
+}
+}
+}
+});
 });
 
-app.post('/creg', function (req, res) {
-  console.log('creg');
+app.post('/companysignup', function (req, res) {
+  console.log('companyregistration initialized');
   console.log("Req Body : ",req.body);
   var flag2=0;
   
@@ -105,9 +131,9 @@ app.post('/creg', function (req, res) {
   res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
   }
   
-  let data=[req.body.cname,req.body.email,req.body.password,req.body.location]
+  let data=[req.body.company,req.body.emailid,req.body.password,req.body.location]
   
-  con.query('INSERT into company(companyname,emailid,pwd,location) VALUES(?,?,?,?)',[req.body.cname,req.body.email,req.body.password,req.body.location],
+  con.query('INSERT into company(companyname,emailid,pwd,location) VALUES(?,?,?,?)',[req.body.company,req.body.emailid,req.body.password,req.body.location],
   function (error, results, fields) {
   if (error) {
   console.log("error ocurred",error);
@@ -115,6 +141,7 @@ app.post('/creg', function (req, res) {
   }
   else{
   console.log(data);
+  res.send("success")
   }
   });
   
@@ -140,7 +167,8 @@ app.get('/displayjobdetails', async (req, res) => {
       res.json({ results });
       
   });
-});
+  console.log("session var in display job ",sessvar.email);
+  });
 
 
 app.listen(3001);

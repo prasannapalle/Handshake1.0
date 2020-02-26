@@ -10,8 +10,11 @@
 .card
 {
 background-color: aquamarine;
-margin-left: 50px;
-margin-right: 950px;
+margin-left: 450px;
+margin-right: 450px;
+margin-bottom:50px;
+font-size: medium;
+font-weight: 600;
 padding: 50px;
 text-align: center;
 }
@@ -20,6 +23,13 @@ text-align: center;
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
+}
+
+
+@media (min-width: 992px){
+.col-md-6 {
+    width: 100%;
+}
 }
 
 .imgstyle
