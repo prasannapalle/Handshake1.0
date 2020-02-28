@@ -14,7 +14,15 @@ class Student extends Component{
             dobvalue : "",
             cityvalue: "",
             statevalue:"",
-            countryvalue:""
+            countryvalue:"",
+            studentAllDetailsResult: [],
+            studentAllEduDetailsResult: [],
+            studentAllWorkDetailsResult: [],
+            myJourney: [],
+            yearofPassing: "",
+            collegeName: "",
+            degree: "",
+            major: ""
         }
 
         this.namehandleChange = this.namehandleChange.bind(this);
@@ -69,6 +77,72 @@ class Student extends Component{
                 });
                 console.log('message from didmount: ', this.state.msg)
             });
+
+
+            axios.get("http://localhost:3001/profile").then(response => {
+              //update the state with the response data
+              console.log("Details  :::", response);
+              this.setState({
+                studentAllDetailsResult: this.state.studentAllDetailsResult.concat(
+                  response.data["results"]
+                )
+              });
+              this.setState({
+                myJourney: this.state.myJourney.concat(response.data)
+              });
+            });
+            console.log("in componentDidMount");
+            axios.get("http://localhost:3001/profileEduDetails").then(response => {
+              //update the state with the response data
+              console.log("Education  :::", response);
+              this.setState({
+                studentAllEduDetailsResult: this.state.studentAllEduDetailsResult.concat(
+                  response.data["results"]
+                )
+
+              
+              });
+              console.log("in my data",this.state.studentAllEduDetailsResult);
+            });
+            console.log("in componentDidMount");
+            axios.get("http://localhost:3001/profileWorkDetails").then(response => {
+              //update the state with the response data
+              console.log("Work  :::", response);
+              this.setState({
+                studentAllWorkDetailsResult: this.state.studentAllWorkDetailsResult.concat(
+                  response.data["results"]
+                )
+              });
+            });
+    }
+
+
+    handlemyWorkChange = (e, id, name) => {
+      const studentWorkDetails = this.state.studentAllWorkDetailsResult;
+      studentWorkDetails.map(studentWorkDetail => {
+        if (studentWorkDetail.student_id === id) {
+          studentWorkDetail[name] = e.target.value;
+        }
+      });
+      console.log("studentEduDetails", studentWorkDetails);
+      this.setState({ studentAllEduDetailsResult: studentWorkDetails });
+    };
+
+
+    handlemyEduChange = (e, id, name) => {
+      const studentEduDetails = this.state.studentAllEduDetailsResult;
+      studentEduDetails.map(studentEduDetail => {
+        if (studentEduDetail.student_id === id) {
+          studentEduDetail[name] = e.target.value;
+          studentEduDetail.edited = true;
+        }
+      });
+      console.log("studentEduDetails", studentEduDetails);
+      this.setState({ studentAllEduDetailsResult: studentEduDetails });
+    };
+
+    redirecttoUpdateProfilePage() {
+      this.props.history.push("/Profile");
     }
 
     submiteditstudent = (e) => {
@@ -123,31 +197,238 @@ class Student extends Component{
           </table>
       )
   });
-        return(
-        
-        <div className="card">
-          <div></div>
-        <div className="row-fluid">
-          <div className="span2">
-          {details}
-         </div>
-          <div className="span10">
-          </div>
-           <button onClick={this.editstudent} class="btn btn-primary">Edit </button>                 
-         
+
+
+  let studentDetails1 = this.state.studentAllDetailsResult.map(
+    studentAllDetailResult => {
+      console.log("Id iss::::::" + studentAllDetailResult.studentDetailsId);
+      return (
+        <div>
+          <form>
+            <input
+              class="editableinput2"
+              type="text"
+              placeholder={studentAllDetailResult.carrierObjective}
+              onChange={this.handlemyJourneyChange}
+            />
+            <button
+              class="editButton"
+              onClick={event =>
+                this.submitmyJourney(
+                  event,
+                  studentAllDetailResult.studentDetailsId,
+                  "carrierObjective"
+                )
+              }
+            >
+              Apply Changes
+            </button>
+          </form>
         </div>
-      </div>  
+      );
+    }
+  );
 
+
+  let studentWorkDetails = this.state.studentAllWorkDetailsResult.map(
+    studentAllWorkDetailResult => {
+      return (
+        <div class="card">
+          <form>
+            <input
+              onChange={e =>
+                this.handlemyWorkChange(
+                  e,
+                  studentAllWorkDetailResult.workExpDetailsId,
+                  "companyName"
+                )
+              }
+              class="editableinput"
+              name="companyName"
+              placeholder={studentAllWorkDetailResult.companyname}
+            ></input>
+            <br />
+            <br />
+            <input
+              onChange={e =>
+                this.handlemyWorkChange(
+                  e,
+                  studentAllWorkDetailResult.workExpDetailsId,
+                  "title"
+                )
+              }
+              class="editableinput"
+              name="title"
+              placeholder={studentAllWorkDetailResult.title}
+            ></input>
+            <br />
+            <br />
+            <input
+              onChange={e =>
+                this.handlemyWorkChange(
+                  e,
+                  studentAllWorkDetailResult.workExpDetailsId,
+                  "startDate"
+                )
+              }
+              class="editableinput"
+              name="startDate"
+              placeholder={studentAllWorkDetailResult.startdate}
+            ></input>
+            <br />
+            <br />
+            <input
+              onChange={e =>
+                this.handlemyWorkChange(
+                  e,
+                  studentAllWorkDetailResult.workExpDetailsId,
+                  "endDate"
+                )
+              }
+              class="editableinput"
+              name="endDate"
+              placeholder={studentAllWorkDetailResult.enddate}
+            ></input>
+            <button
+              class="editButton"
+              onClick={event =>
+                this.submitWorkDetails(
+                  event,
+                  studentAllWorkDetailResult.workExpDetailsId
+                )
+              }
+            >
+              Apply Changes
+            </button>
+          </form>
+        </div>
+      );
+    }
+  );
+
+
+  let studentEducationDetails = this.state.studentAllEduDetailsResult.map(
+    studentAllEduDetailResult => {
+      return (
+        <div class="card">
+          <form>
+            <input
+              onChange={e =>
+                this.handlemyEduChange(
+                  e,
+                  studentAllEduDetailResult.student_id,
+                  "collegeName"
+                )
+              }
+              name="collegeName" 
+              class="editableinput3"
+              type="text"
+              placeholder={studentAllEduDetailResult.collegename}
+            ></input>
+            <br />
+            <br />
+            <input
+              onChange={e =>
+                this.handlemyEduChange(
+                  e,
+                  studentAllEduDetailResult.studentEduDetailsId,
+                  "degree"
+                )
+              }
+              class="editableinput"
+              name="degree"
+              placeholder={studentAllEduDetailResult.Degree}
+            ></input>
+            <br />
+            <br />
+            <input
+              onChange={e =>
+                this.handlemyEduChange(
+                  e,
+                  studentAllEduDetailResult.studentEduDetailsId,
+                  "major"
+                )
+              }
+              class="editableinput"
+              name="major"
+              placeholder={studentAllEduDetailResult.Major}
+            ></input>
+            <br />
+            <br />
+            <input
+              onChange={e =>
+                this.handlemyEduChange(
+                  e,
+                  studentAllEduDetailResult.studentEduDetailsId,
+                  "yearofPassing"
+                )
+              }
+              class="editableinput"
+              name="yearofPassing"
+              placeholder={studentAllEduDetailResult.Yearofpassing}
+            ></input>
+
+            <button
+              class="editButton"
+              onClick={event =>
+                this.submitEduDetails(
+                  event,
+                  studentAllEduDetailResult.studentEduDetailsId
+                )
+              }
+            >
+              Apply Changes
+            </button>
+          </form>
+        </div>
+      );
+    }
+  );
+
+        return(
+
+
+         
+            <body>
+              <button
+                class="editButton"
+                onClick={this.redirecttoUpdateProfilePage.bind(this)}
+              >
+                Go to Profile
+              </button>
+              <div class="row">
+                <div class="leftcolumn">
+                  <div class="card">
+                    <h2>My Journey</h2>
+                    {<p>{studentDetails1}</p>}
+                  </div>
+                  <br />
       
-  //     <div className="card">
-  
-  // <div class="container">
-  //   <h4><b>John Doe</b></h4>
-  //   <p>Architect & Engineer</p>
-  // </div>
-  //    </div>
-
-        )
+                  <h2 class="Profileheading">
+                     Education
+                     <button class="editButton">Add Education</button>
+                   </h2>
+      
+                   {studentEducationDetails}
+                   <br />
+      
+                   <h2 class="Profileheading">
+                     Work Experience
+                     <button class="editButton">Add Work</button>
+                   </h2>
+      
+                   {studentWorkDetails}
+                 </div>
+               
+               </div>
+      
+               <div class="footer">
+                 <h2>Footer</h2>
+               </div>
+             </body>
+        
+        
+        );
     }
 }
 

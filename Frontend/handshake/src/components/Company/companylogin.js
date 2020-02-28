@@ -28,8 +28,9 @@ class CompanyLogin extends Component {
         location : "",
         authFlag : false,
         companyname : "",
-        msg : ""};
+        msg : []
       }    
+    }
     usernameChangeHandler = (e) => {
                 this.setState({
                     usrname : e.target.value
@@ -91,16 +92,19 @@ class CompanyLogin extends Component {
         axios.post('http://localhost:3001/companylogin',data)
             .then(response => {
                 console.log("Status Code : ",response.status);
+                const data = response.data["results"];
                 console.log("response data from axios", response.data);
-                sessionStorage.setItem("companyname",data.username);
+            sessionStorage.setItem("companyname",response.data);
+               
                 if(response.data){
                     this.setState({
                         authFlag : true,
+                        msg: data,
                         companyname : sessionStorage.getItem("companyname"),
                         errmsg:  <Redirect to= "/companydashboard"/>     
                     })
 
-                    console.log("in login axios",this.state.companyname);
+                    console.log("in login axios",this.state.msg);
                 }
                 else{
                     this.setState({

@@ -86,6 +86,21 @@ handleLogoutClick() {
   this.setState({isLoggedIn: false});
 }
 
+submitmyJourney = (event, id, name) => {
+  const data = {
+    id: id,
+    myJourney: this.state.myJourney
+  };
+  axios.post("http://localhost:3001/myjourney", data).then(response => {
+    console.log("Status Code : ", response.status);
+    if (response.status === 200) {
+      console.log("Updated carrierObjective details successfully");
+    } else {
+      console.log("Error Updating carrierObjective page");
+    }
+  });
+};
+
 render() {
 
 
@@ -96,6 +111,16 @@ render() {
     var signupform;
     var loginform;
     let redirectVar = null;
+    var viewapplications;
+
+
+    function viewapplications()
+{
+  console.log("inside view applications");
+  return <h1>students who applied</h1>;
+
+}
+
    
     function AddnewPost(props) {
       const isLoggedIn = props.isLoggedIn;
@@ -221,6 +246,12 @@ render() {
               </div>
 
               </div>
+              <div>
+                 <button
+                class="editButton"
+                onClick={this.UserGreeting}
+              ></button>
+              </div>
               </div>
         );   
       }
@@ -263,10 +294,16 @@ render() {
                   <td>Description : {job.jobdescription}</td></tr>
                 <tr>
                   
-                  <td>Posting Date : {job.jobcategory}</td></tr>
-                {/* <button onClick={this.enablefields} class="btn btn-primary">Edit</button>               
-             <button onClick={this.editjobs} class="btn btn-primary"> Submit </button>  */}
+                  <td>Job Category : {job.jobcategory}</td></tr>
+                            
+             <viewapplications class="btn btn-primary"> View Applications </viewapplications> 
+
               </tbody>
+              </table>
+              <table>
+                <tbody>
+          <tr>{viewapplications}</tr>
+                </tbody>
               </table>
               </div>
                     
@@ -294,11 +331,8 @@ render() {
              <br></br>
            {signupform}
            {loginform}
-           
             </div>
-            </div>
-           
-           
+            </div> 
         );
     }
 

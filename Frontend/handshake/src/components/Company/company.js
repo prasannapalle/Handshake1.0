@@ -64,7 +64,7 @@ class Company extends Component
         //prevent page from refresh
         e.preventDefault();
 
-        const data = {
+        const postdata = {
             company : this.state.company,
             emailid : this.state.emailid,
             password : this.state.password,
@@ -74,7 +74,7 @@ class Company extends Component
         //set the with credentials to true
         axios.defaults.withCredentials = true;
         //make a post request with the user data
-        axios.post('http://localhost:3001/companysignup',data)
+        axios.post('http://localhost:3001/companysignup',postdata)
             .then(response => {
                 console.log("Status Code : ",response.status);
                 if(response.data === "success"){
