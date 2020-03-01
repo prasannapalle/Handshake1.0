@@ -113,7 +113,7 @@ class UpdateProfile extends Component {
               />
               <button
                 class="editButton"
-                onClick={event =>
+                onClick = {event =>
                   this.submitmyJourney(
                     event,
                     studentAllDetailResult.studentDetailsId,

@@ -81,7 +81,8 @@ app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
 
 
-app.post('/companylogin',function(req,res){
+app.post('/companylogin',function(req,res)
+{
 console.log("Inside Company Login Post Request");
 //console.log("Req Body : ", username + "password : ",password);
 console.log("Req Body : ",req.body);
@@ -89,27 +90,30 @@ sessvar = req.session;
 let email= req.body.username;
 let password1 = req.body.password;
 sessvar.email = email;
-
 con.query('SELECT * FROM company WHERE emailid = ?',[email], function (error, results, fields) {
-if (error) {
+if (error) 
+{
 console.log("error ocurred",error);
 res.send("err");
 }
 else
 {
 if(results.length > 0){
-if(results[0].pwd === password1){
+if(results[0].pwd === password1)
+{
 console.log('success');
 console.log(results);
 res.cookie('companydata',results);
 sessvar.username = results[0].companyname;
 sessvar.company_id = results[0].company_id;
+req.session.username = sessvar.username;
 res.cookie('cookie',results,{maxAge: 900000, httpOnly: false, path : '/'});
+console.log("company_id",sessvar.company_id);
 console.log(results[0].company_id);
-res.sendStatus(results[0].company_id);
+res.send(results[0].companyname);
 } 
-
-else{
+else
+{
 res.send("fail2");
 console.log('wrong password');
 }
@@ -117,6 +121,19 @@ console.log('wrong password');
 }
 });
 });
+
+// app.get('/profileWorkDetails',function(req,res)
+// {
+// console.log('profile work details');
+// con.query('SELECT * from experience' , function(error,results)
+// {
+//   console.log(results);
+//   res.json({results});
+// }
+// )
+// });
+
+
 
 app.post('/companysignup', function (req, res) {
   console.log('companyregistration initialized');

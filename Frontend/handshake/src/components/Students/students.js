@@ -1,435 +1,405 @@
-import React, { Component } from 'react';
-import axios from 'axios';
-import '../../App.css'
-class Student extends Component{
+import React, { Component, useState } from "react";
+import "../../App.css";
+import axios from "axios";
+import cookie from "react-cookies";
+import { Redirect } from "react-router";
+import { Card, CardColumns, Form, Col, InputGroup, Button } from "react-bootstrap";
 
-    constructor(props) {
-        //Call the constrictor of Super class i.e The Component
-        super(props);
-        //maintain the state required for this component
-        this.state = {
-          
-            msg: [],
-            namevalue : "",
-            dobvalue : "",
-            cityvalue: "",
-            statevalue:"",
-            countryvalue:"",
-            studentAllDetailsResult: [],
-            studentAllEduDetailsResult: [],
-            studentAllWorkDetailsResult: [],
-            myJourney: [],
-            yearofPassing: "",
-            collegeName: "",
-            degree: "",
-            major: ""
-        }
-
-        this.namehandleChange = this.namehandleChange.bind(this);
-        this.dobhandleChange = this.dobhandleChange.bind(this);
-        this.cityhandleChange = this.cityhandleChange.bind(this);
-        this.statehandleChange = this.statehandleChange.bind(this);
-        this.countryhandleChange = this.countryhandleChange.bind(this);
-    }
-
-    namehandleChange(event) {
-        this.setState({namevalue: event.target.value});
-      }
-
-      dobhandleChange(event) {
-        this.setState({dobvalue: event.target.value});
-      }
-
-      cityhandleChange(event) {
-        this.setState({cityvalue: event.target.value});
-      }
-
-      statehandleChange(event) {
-        this.setState({statevalue: event.target.value});
-      }
-
-      countryhandleChange(event) {
-        this.setState({countryvalue: event.target.value});
-      }
-    //Call the Will Mount to set the auth Flag to false
-    componentWillMount() {
-        this.setState({
-            msg: [],
-            namevalue:"",
-            dobvalue:"",
-            cityvalue:"",
-            statevalue:"",
-            countryvalue:"",
-            authFlag: false
-
-        })
-    }
-
-    componentDidMount(){
-        axios.get('http://localhost:3001/displaystudentdetails')
-                .then((response) => {
-                    console.log("This is getting printed", response.data);
-                    const data = response.data["results"];
-                    console.log("data from console", data);
-                //update the state with the response data
-                this.setState({
-                    msg : data
-                });
-                console.log('message from didmount: ', this.state.msg)
-            });
+var dateFormat = require('dateformat');
 
 
-            axios.get("http://localhost:3001/profile").then(response => {
-              //update the state with the response data
-              console.log("Details  :::", response);
-              this.setState({
-                studentAllDetailsResult: this.state.studentAllDetailsResult.concat(
-                  response.data["results"]
-                )
-              });
-              this.setState({
-                myJourney: this.state.myJourney.concat(response.data)
-              });
-            });
-            console.log("in componentDidMount");
-            axios.get("http://localhost:3001/profileEduDetails").then(response => {
-              //update the state with the response data
-              console.log("Education  :::", response);
-              this.setState({
-                studentAllEduDetailsResult: this.state.studentAllEduDetailsResult.concat(
-                  response.data["results"]
-                )
 
-              
-              });
-              console.log("in my data",this.state.studentAllEduDetailsResult);
-            });
-            console.log("in componentDidMount");
-            axios.get("http://localhost:3001/profileWorkDetails").then(response => {
-              //update the state with the response data
-              console.log("Work  :::", response);
-              this.setState({
-                studentAllWorkDetailsResult: this.state.studentAllWorkDetailsResult.concat(
-                  response.data["results"]
-                )
-              });
-            });
-    }
-
-
-    handlemyWorkChange = (e, id, name) => {
-      const studentWorkDetails = this.state.studentAllWorkDetailsResult;
-      studentWorkDetails.map(studentWorkDetail => {
-        if (studentWorkDetail.student_id === id) {
-          studentWorkDetail[name] = e.target.value;
-        }
-      });
-      console.log("studentEduDetails", studentWorkDetails);
-      this.setState({ studentAllEduDetailsResult: studentWorkDetails });
+class dashboard extends Component {
+  constructor() {
+    super();
+    this.state = {
+      userDetails: "",
+      showEdit: false
     };
-
-
-    handlemyEduChange = (e, id, name) => {
-      const studentEduDetails = this.state.studentAllEduDetailsResult;
-      studentEduDetails.map(studentEduDetail => {
-        if (studentEduDetail.student_id === id) {
-          studentEduDetail[name] = e.target.value;
-          studentEduDetail.edited = true;
-        }
+  }
+  //get the books data from backend
+  componentDidMount() {
+    console.log('responset');
+    var emailID;
+    var url = new URL(window.location.href);
+    var search_params = new URLSearchParams(url.search);
+    // this will be true
+    if (search_params.has('emailId')) {
+      emailID = search_params.get('emailId');
+    } else {
+      if (cookie.load('userName')) {
+        emailID = cookie.load('userName');
+      }
+    }
+    axios.post('http://localhost:3001/userDetails/', {
+      emailId: emailID
+    }).then(response => {
+      //update the state with the response data
+      console.log('response', response.data);
+      this.setState({
+        userDetails: response.data["results"]
       });
-      console.log("studentEduDetails", studentEduDetails);
-      this.setState({ studentAllEduDetailsResult: studentEduDetails });
-    };
+      this.setState(response.data["results"]); //Initial Values
+    });
+  }
 
-    redirecttoUpdateProfilePage() {
-      this.props.history.push("/Profile");
-    }
 
-    submiteditstudent = (e) => {
-        var headers = new Headers();
-        //prevent page from refresh
-        e.preventDefault();
-        const data = {
-            namevalue : this.state.namevalue,
-            dobvalue : this.state.dobvalue,
-            cityvalue : this.state.cityvalue,
-            statevalue : this.state.statevalue,
-            countryvalue : this.state.countryvalue
+  logout= ()=>{
+    console.log('logging out')
+    this.props.history.push('/student');
+  }
+
+
+  editForm = (e) => {
+    this.setState({ showEdit: true });
+  }
+
+  updateForm = (e) => {
+    this.setState({ showEdit: false });
+    //set the with credentials to true
+    axios.defaults.withCredentials = true;
+    //make a post request with the user data
+    var data;
+    console.log('User Details',this.state.userDetails);
+    console.log('User Details',this.state);
+
+  //  this.props.updateAction(this.state);
+
+    /*axios.post('http://localhost:3001/updateUser', this.state)
+      .then(response => {
+        if (response.data === 'Error') {
+          this.setState({ showUniqueError: true });
+        } else {
+          this.setState({ redirectToHome: true });
         }
-        //set the with credentials to true
-        axios.defaults.withCredentials = true;
-        //make a post request with the user data
-        axios.post('http://localhost:3001/editbasicdetails', data)
-            .then(response => {
-                console.log("res",response.data);
-                if (response.data === "success") {
-                    this.setState({
-                        authFlag: true
-                    })}
-                else{
-                  console.log("else prt");
-                        this.setState({
-                            authFlag: false,
-                            
-                        })
-                }
-            });   
-    }
+        console.log("Status Code : ", response.data);
+      })
+      .catch(errors => {
+        console.log('Error' + errors);
+      });*/
+  }
 
-    editstudent = (e) => {
-      this.props.history.push("/studenteditform");
-    }
-   
-    render() {
-    let rendermsg = null;
-    rendermsg = this.state.msg;
-    let details = this.state.msg.map(student => {
-      return(
-        <table>
-          <tbody>
-            <thead></thead>
-          <tr>
-              <td>{student.name}</td>
-              <td>{student.emailId}</td>
-              <td>{student.collegename}</td>
-          </tr>
-          </tbody>
-          </table>
-      )
-  });
+  handleChange = (e) => {
+    this.setState({[e.target.name]: e.target.value});
+  }
+
+  handleSubmit = (e) => {
+    e.preventDefault();
+    /*if(document.forms['createForm'].reportValidity()){
+      const data = {
+          bookId : this.state.bookId,
+          bookTitle : this.state.bookTitle,
+          bookAuthor : this.state.bookAuthor
+      }*/
+    //set the with credentials to true
+    axios.defaults.withCredentials = true;
+    //make a post request with the user data
+    var data;
+    axios.post('http://localhost:3001/create', data)
+      .then(response => {
+        if (response.data === 'Error') {
+          this.setState({ showUniqueError: true });
+        } else {
+          this.setState({ redirectToHome: true });
+        }
+        console.log("Status Code : ", response.data);
+      })
+      .catch(errors => {
+        console.log('Error' + errors);
+      });
+  }
+  //this.state.showEdit = true;
 
 
-  let studentDetails1 = this.state.studentAllDetailsResult.map(
-    studentAllDetailResult => {
-      console.log("Id iss::::::" + studentAllDetailResult.studentDetailsId);
-      return (
-        <div>
-          <form>
-            <input
-              class="editableinput2"
-              type="text"
-              placeholder={studentAllDetailResult.carrierObjective}
-              onChange={this.handlemyJourneyChange}
-            />
-            <button
-              class="editButton"
-              onClick={event =>
-                this.submitmyJourney(
-                  event,
-                  studentAllDetailResult.studentDetailsId,
-                  "carrierObjective"
-                )
-              }
-            >
-              Apply Changes
-            </button>
-          </form>
-        </div>
-      );
-    }
-  );
 
-
-  let studentWorkDetails = this.state.studentAllWorkDetailsResult.map(
-    studentAllWorkDetailResult => {
-      return (
-        <div class="card">
-          <form>
-            <input
-              onChange={e =>
-                this.handlemyWorkChange(
-                  e,
-                  studentAllWorkDetailResult.workExpDetailsId,
-                  "companyName"
-                )
-              }
-              class="editableinput"
-              name="companyName"
-              placeholder={studentAllWorkDetailResult.companyname}
-            ></input>
-            <br />
-            <br />
-            <input
-              onChange={e =>
-                this.handlemyWorkChange(
-                  e,
-                  studentAllWorkDetailResult.workExpDetailsId,
-                  "title"
-                )
-              }
-              class="editableinput"
-              name="title"
-              placeholder={studentAllWorkDetailResult.title}
-            ></input>
-            <br />
-            <br />
-            <input
-              onChange={e =>
-                this.handlemyWorkChange(
-                  e,
-                  studentAllWorkDetailResult.workExpDetailsId,
-                  "startDate"
-                )
-              }
-              class="editableinput"
-              name="startDate"
-              placeholder={studentAllWorkDetailResult.startdate}
-            ></input>
-            <br />
-            <br />
-            <input
-              onChange={e =>
-                this.handlemyWorkChange(
-                  e,
-                  studentAllWorkDetailResult.workExpDetailsId,
-                  "endDate"
-                )
-              }
-              class="editableinput"
-              name="endDate"
-              placeholder={studentAllWorkDetailResult.enddate}
-            ></input>
-            <button
-              class="editButton"
-              onClick={event =>
-                this.submitWorkDetails(
-                  event,
-                  studentAllWorkDetailResult.workExpDetailsId
-                )
-              }
-            >
-              Apply Changes
-            </button>
-          </form>
-        </div>
-      );
-    }
-  );
-
-
-  let studentEducationDetails = this.state.studentAllEduDetailsResult.map(
-    studentAllEduDetailResult => {
-      return (
-        <div class="card">
-          <form>
-            <input
-              onChange={e =>
-                this.handlemyEduChange(
-                  e,
-                  studentAllEduDetailResult.student_id,
-                  "collegeName"
-                )
-              }
-              name="collegeName" 
-              class="editableinput3"
-              type="text"
-              placeholder={studentAllEduDetailResult.collegename}
-            ></input>
-            <br />
-            <br />
-            <input
-              onChange={e =>
-                this.handlemyEduChange(
-                  e,
-                  studentAllEduDetailResult.studentEduDetailsId,
-                  "degree"
-                )
-              }
-              class="editableinput"
-              name="degree"
-              placeholder={studentAllEduDetailResult.Degree}
-            ></input>
-            <br />
-            <br />
-            <input
-              onChange={e =>
-                this.handlemyEduChange(
-                  e,
-                  studentAllEduDetailResult.studentEduDetailsId,
-                  "major"
-                )
-              }
-              class="editableinput"
-              name="major"
-              placeholder={studentAllEduDetailResult.Major}
-            ></input>
-            <br />
-            <br />
-            <input
-              onChange={e =>
-                this.handlemyEduChange(
-                  e,
-                  studentAllEduDetailResult.studentEduDetailsId,
-                  "yearofPassing"
-                )
-              }
-              class="editableinput"
-              name="yearofPassing"
-              placeholder={studentAllEduDetailResult.Yearofpassing}
-            ></input>
-
-            <button
-              class="editButton"
-              onClick={event =>
-                this.submitEduDetails(
-                  event,
-                  studentAllEduDetailResult.studentEduDetailsId
-                )
-              }
-            >
-              Apply Changes
-            </button>
-          </form>
-        </div>
-      );
-    }
-  );
-
-        return(
-
-
-         
-            <body>
-              <button
-                class="editButton"
-                onClick={this.redirecttoUpdateProfilePage.bind(this)}
-              >
-                Go to Profile
-              </button>
-              <div class="row">
-                <div class="leftcolumn">
-                  <div class="card">
-                    <h2>My Journey</h2>
-                    {<p>{studentDetails1}</p>}
-                  </div>
-                  <br />
+  render() {
+    var dis;
       
-                  <h2 class="Profileheading">
-                     Education
-                     <button class="editButton">Add Education</button>
-                   </h2>
-      
-                   {studentEducationDetails}
-                   <br />
-      
-                   <h2 class="Profileheading">
-                     Work Experience
-                     <button class="editButton">Add Work</button>
-                   </h2>
-      
-                   {studentWorkDetails}
-                 </div>
-               
-               </div>
-      
-               <div class="footer">
-                 <h2>Footer</h2>
-               </div>
-             </body>
-        
-        
-        );
+        dis=(
+    <Card className="text-center" bg="primary">
+        <Card.Header>WELCOME TO DASHBOARD</Card.Header>
+        <Card.Body>
+          <Card.Title> {sessionStorage.getItem('name')} </Card.Title>
+          <Card.Text>
+           
+          </Card.Text>
+          <Button variant="danger" onClick={this.logout}>Log Out!</Button>
+        </Card.Body>
+        <Card.Footer className="text-muted"></Card.Footer>
+        <br></br>
+      </Card>)
+
+    let redirectVar = null;
+    if (!cookie.load('cookie')) {
+      redirectVar = <Redirect to="/login" />
     }
+    var userDetails = this.state.userDetails;
+    var showEdit = this.state.showEdit;
+
+    let message1 = null;
+        let message2 = null;
+        message1 = this.props.status == 200 ? "Updated" : null;
+        message2 = this.props.status == 401?"Error" : null;
+    
+    return (
+      <div>
+        {dis}
+        {showEdit !== undefined && !showEdit &&
+          <div>
+            {message1}
+            {message2}
+            <CardColumns>
+              <Card bg="secondary">
+           
+                <Card.Body>
+                  <Card.Title>{userDetails.name}</Card.Title>
+                  <Card.Text>Email Id : {userDetails.emailID}</Card.Text>
+                </Card.Body>
+              </Card>
+              <Card>
+                <Card.Header>Career Objective</Card.Header>
+                <Card.Body>
+                  <Card.Title>{userDetails.careerObjective}</Card.Title>
+                </Card.Body>
+              </Card>
+              <Card>
+                <Card.Header>Personal Details</Card.Header>
+                <Card.Body>
+                  <Card.Text>DOB : {userDetails.dob}</Card.Text>
+                  <Card.Text>Contact No : {userDetails.contactNo}</Card.Text>
+                  <Card.Text>City : {userDetails.city}</Card.Text>
+                  <Card.Text>State : {userDetails.state}</Card.Text>
+                  <Card.Text>Country : {userDetails.country}</Card.Text>
+                </Card.Body>
+              </Card>
+              <Card>
+                <Card.Header>Education</Card.Header>
+                <Card.Body>
+                  <Card.Text>College Name : {userDetails.collegeName}</Card.Text>
+                  <Card.Text>Degree : {userDetails.degree}</Card.Text>
+                  <Card.Text>Major : {userDetails.major}</Card.Text>
+                  <Card.Text>Year of Passing : {userDetails.yearOfPassing}</Card.Text>
+                  <Card.Text>Current CGPA : {userDetails.currentCGPA}</Card.Text>
+                </Card.Body>
+              </Card>
+              <Card>
+                <Card.Header>Experience</Card.Header>
+                <Card.Body>
+                  <Card.Text>Company Name : {userDetails.expCompanyName}</Card.Text>
+                  <Card.Text>Company Title : {userDetails.expCompanyTitle}</Card.Text>
+                  <Card.Text>Location : {userDetails.expLocation}</Card.Text>
+                  <Card.Text>Start Date : {userDetails.expStartDate}</Card.Text>
+                  <Card.Text>End Date : {userDetails.expEndDate}</Card.Text>
+                  <Card.Text>Description : {userDetails.expDescription}</Card.Text>
+                  <Card.Text>Skillset : {userDetails.skillset}</Card.Text>
+                </Card.Body>
+              </Card>
+            </CardColumns>
+            <button onClick={this.editForm} class="btn btn-success" >Edit</button>
+          </div>
+        }
+
+        {showEdit !== undefined && showEdit &&
+          <div>
+            
+            <Form.Row>
+              <Form.Group as={Col} md="4" controlId="validationCustom01">
+                <Form.Label>Name</Form.Label>
+                <Form.Control
+                  required
+                  type="text"
+                  placeholder="First name"
+                  defaultValue={userDetails.name}
+                  onChange={this.handleChange}
+                  name="name"
+                />
+                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group as={Col} md="4" controlId="validationCustom02">
+                <Form.Label>Email ID</Form.Label>
+                <Form.Control
+                  required
+                  type="text"
+                  placeholder="Email Id"
+                  defaultValue={userDetails.emailID}
+                  onChange={this.handleChange}
+                  name="emailID"
+                />
+                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group as={Col} md="4" controlId="validationCustom02">
+                <Form.Label>Contact No</Form.Label>
+                <Form.Control
+                  required
+                  type="text"
+                  placeholder="Contact No"
+                  defaultValue={userDetails.contactNo}
+                  onChange={this.handleChange}
+                  name="contactNo"
+                />
+                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+              </Form.Group>
+            </Form.Row>
+
+            <Form.Row>
+              <Form.Group as={Col} md="6" controlId="validationCustom03">
+                <Form.Label>Date of Birth</Form.Label>
+                <Form.Control type="date" onChange={this.handleChange}
+                  name="dob" defaultValue={dateFormat(userDetails.dob,"yyyy-mm-dd")} placeholder="Date of Birth" required />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid city.
+          </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group as={Col} md="3" controlId="validationCustom04">
+                <Form.Label>City</Form.Label>
+                <Form.Control type="text" onChange={this.handleChange}
+                  name="city" defaultValue={userDetails.city} placeholder="City" required />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid state.
+          </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group as={Col} md="3" controlId="validationCustom05">
+                <Form.Label>State</Form.Label>
+                <Form.Control type="text" onChange={this.handleChange}
+                  name="state" defaultValue={userDetails.state} placeholder="State" required />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid zip.
+          </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group as={Col} md="3" controlId="validationCustom06">
+                <Form.Label>Country</Form.Label>
+                <Form.Control type="text" onChange={this.handleChange}
+                  name="country" defaultValue={userDetails.country} placeholder="Country" required />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid zip.
+          </Form.Control.Feedback>
+              </Form.Group>
+            </Form.Row>
+
+            
+            <Form.Row>
+              <Form.Group as={Col} md="6" controlId="validationCustom03">
+                <Form.Label>College Name</Form.Label>
+                <Form.Control onChange={this.handleChange}
+                  name="collegeName" type="text" defaultValue={userDetails.collegeName} placeholder="College Name" required />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid city.
+          </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group as={Col} md="3" controlId="validationCustom04">
+                <Form.Label>Career Objective</Form.Label>
+                <Form.Control onChange={this.handleChange}
+                  name="careerObjective" type="text" defaultValue={userDetails.careerObjective} placeholder="Career Objective" required />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid state.
+          </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group as={Col} md="3" controlId="validationCustom05">
+                <Form.Label>Degree</Form.Label>
+                <Form.Control  onChange={this.handleChange}
+                  name="degree" type="text" defaultValue={userDetails.degree} placeholder="Degree" required />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid zip.
+          </Form.Control.Feedback>
+              </Form.Group>
+            </Form.Row>
+            <Form.Row>
+              <Form.Group as={Col} md="6" controlId="validationCustom03">
+                <Form.Label>Major</Form.Label>
+                <Form.Control type="text" onChange={this.handleChange}
+                  name="major" defaultValue={userDetails.major} placeholder="Major" required />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid city.
+          </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group as={Col} md="3" controlId="validationCustom04">
+                <Form.Label>Year Of Passing</Form.Label>
+                <Form.Control type="date"onChange={this.handleChange}
+                  name="dateOfPassing" defaultValue={dateFormat(userDetails.dateOfPassing,"yyyy-mm-dd")} placeholder="Year Of Passing" required />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid state.
+          </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group as={Col} md="3" controlId="validationCustom05">
+                <Form.Label>Current CGPA</Form.Label>
+                <Form.Control type="text" onChange={this.handleChange}
+                  name="currentCGPA" defaultValue={userDetails.currentCGPA} placeholder="Current CGPA" required />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid zip.
+          </Form.Control.Feedback>
+              </Form.Group>
+            </Form.Row>
+            <Form.Row>
+              <Form.Group as={Col} md="6" controlId="validationCustom03">
+                <Form.Label>Company Name</Form.Label>
+                <Form.Control type="text" onChange={this.handleChange}
+                  name="expCompanyName" defaultValue={userDetails.expCompanyName} placeholder="Company Name" required />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid city.
+          </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group as={Col} md="3" controlId="validationCustom04">
+                <Form.Label>Company Title</Form.Label>
+                <Form.Control type="text" onChange={this.handleChange}
+                  name="expCompanyTitle" defaultValue={userDetails.expCompanyTitle} placeholder="Company Title" required />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid state.
+          </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group as={Col} md="3" controlId="validationCustom05">
+                <Form.Label>Location</Form.Label>
+                <Form.Control type="text" onChange={this.handleChange}
+                  name="expLocation" defaultValue={userDetails.expLocation} placeholder="Location" required />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid zip.
+          </Form.Control.Feedback>
+              </Form.Group>
+            </Form.Row>
+
+            <Form.Row>
+              <Form.Group as={Col} md="6" controlId="validationCustom03">
+                <Form.Label>Start Date</Form.Label>
+                <Form.Control type="date" onChange={this.handleChange}
+                  name="expStartDate" defaultValue={dateFormat(userDetails.expStartDate,"yyyy-mm-dd")} placeholder="Start Date" required />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid city.
+          </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group as={Col} md="3" controlId="validationCustom04">
+                <Form.Label>End Date</Form.Label>
+                <Form.Control type="date" onChange={this.handleChange}
+                  name="expEndDate" defaultValue={dateFormat(userDetails.expEndDate,"yyyy-mm-dd")} placeholder="End Date" required />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid state.
+          </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group as={Col} md="3" controlId="validationCustom05">
+                <Form.Label>Job Description</Form.Label>
+                <Form.Control onChange={this.handleChange}
+                  name="expDescription" type="text" defaultValue={userDetails.expDescription} placeholder="Job Description" required />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid zip.
+          </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group as={Col} md="4" controlId="validationCustom06">
+                <Form.Label>Skill Set</Form.Label>
+                <Form.Control onChange={this.handleChange}
+                  name="skillset" type="text" defaultValue={userDetails.skillset} placeholder="Skill Set" required />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid zip.
+          </Form.Control.Feedback>
+              </Form.Group>
+            </Form.Row>
+
+            
+            <Button onClick={this.updateForm}>Update Details</Button>
+
+          </div>
+        }
+      </div>
+    );
+  }
 }
 
-export default Student;
+
+export default dashboard;

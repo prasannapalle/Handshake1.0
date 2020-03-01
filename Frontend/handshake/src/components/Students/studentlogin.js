@@ -6,7 +6,7 @@ import {Redirect} from 'react-router';
 
 
 
-class CompanyLogin extends Component {
+class StudentLogin extends Component {
     constructor(props) {
       super(props);
       this.handleLoginClick = this.handleLoginClick.bind(this);
@@ -168,7 +168,10 @@ class CompanyLogin extends Component {
       var loginform;
       var rendermsg;
       let redirectVar = null;
-     
+      var red=null;
+        if(this.state.authFlag==1)
+       { red= <h1>Registration is successfull</h1>;
+    console.log("auth",this.state.authFlag); }
 
       function LoginButton(props) {
         return (
@@ -212,61 +215,42 @@ class CompanyLogin extends Component {
        
         signupform = 
         
-        (   
-        <div class="container register-form">
-           
-            <div><h1>{this.state.msg}</h1></div>
-        <div class="form">
-            <div class="note">
-                <h2>Company Registration Form</h2>
-            </div>
+        (
+            <div style={{backgroundColor:"black"}}>
+                <button bg="primary" onClick={this.bl} >Go Back</button> 
+            <div class="container register-form">
+            <div class="form">
+                <div class="note">
+                    <p style={{color:"white"}}>Student Registration Form</p>
+                </div>
 
-            <div class="form-content">
-               
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                           
-                            <input type="text" class="form-control" onChange = {this.companynamehandler}  placeholder="Enter company name *" name="company"  required/>
-                        </div>
-                        </div>
-                        </div>
-                        <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                        
-                            <input type="text" class="form-control" onChange = {this.emailidhandler}  placeholder="Enter Email ID" name="emailid"  required/>
-                        </div>
-                    </div>
-                    </div>
+                <div class="form-content">
                     <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <input type="password" class="form-control" onChange = {this.passwordhandler}  placeholder="Enter Password" name="password" required/>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input onChange = {this.nameChangeHandler} type="text" class="form-control" placeholder="Student name *" name="name" />
+                            </div>
+                            <div class="form-group">
+                                <input onChange = {this.emailChangeHandler} type="text" class="form-control" placeholder="Emailid *" name="email" />
+                            </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input onChange = {this.passwordChangeHandler} type="password" class="form-control" placeholder="Your Password *" name="password" />
+                            </div>
+                            <div class="form-group">
+                                <input onChange = {this.collegenameChangeHandler} type="text" class="form-control" placeholder="College name *" name="collegename" />
+                            </div>
                         </div>
-                        </div>
-                        <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <input type="password" class="form-control"  onChange = {this.passwordhandler} placeholder="Confirm Password" name="password"  required/>
-                        </div>
                     </div>
-                    </div>
-                    <div class="row">
-                    <div class="col-md-6">
-                    <div class="form-group">
-                    <input type="text" class="form-control" onChange = {this.locationhandler}  placeholder="Enter Location" name="location"  required/>
-                   </div>
-                    </div>
-                    </div>
-                    <div>
-                    <button  onClick = {this.submitSignup} class="btn btn-primary">SignUp</button>    
-                    </div>
+                    <button onClick={this.submitreg} type="button" class="btnSubmit" >Signup</button>
                 </div>
-                </div>
-                </div>
-        );         
+            
+            </div>
+        </div>
+        {red}
+        </div>
+        )
         
       } 
       else {
@@ -282,7 +266,7 @@ class CompanyLogin extends Component {
                   <div class="login-form">
                          <div class="main-div">
                               <div class="panel">
-                                   <h2>Company Login</h2>
+                                   <h2>Student Login</h2>
                                    <p>Please enter your username and password</p>
                                 </div>
                                 
@@ -326,4 +310,4 @@ class CompanyLogin extends Component {
   }
   
 
-export default CompanyLogin;
+export default StudentLogin;

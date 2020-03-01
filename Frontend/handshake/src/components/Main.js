@@ -8,6 +8,7 @@ import Navbar from './HomePage/Navbar';
 import Studentedit from './Students/studentedit';
 import CompanyLogin from './Company/companylogin';
 import CompanyDashboard from './Company/companyDashboard';
+import StudentLogin from './Students/studentlogin';
 
 class Main extends Component {
     render(){
@@ -16,7 +17,7 @@ class Main extends Component {
                 {/*Render Different Component based on Route*/}
                 <Route path="/" component={Navbar}/>
                 <Route path="/jobs" component={Jobs}/>
-                <Route path="/students" component={Students}/>
+                <Route path="/StudentLogin" component={StudentLogin}/>
                 <Route path="/events" component={Events}/>
                 <Route path="/companylogin" component={CompanyLogin}/> 
                 <Route path="/studenteditform" component={Studentedit}/>

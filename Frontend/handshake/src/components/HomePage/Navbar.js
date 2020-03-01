@@ -49,7 +49,7 @@ class Navbar extends Component {
                         <a class="navbar-brand">Handshake</a>
                     </div>
                     <ul class="nav navbar-nav">
-                        <li class="active"><Link to="/students">Students</Link></li>
+                        <li class="active"><Link to="/StudentLogin">Students</Link></li>
                         <li><Link to="/companylogin">Company</Link></li>
                         <li><Link to="/">Jobs</Link></li>
                         <li><Link to="/events">Events</Link></li>
