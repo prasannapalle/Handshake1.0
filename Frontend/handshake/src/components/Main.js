@@ -8,7 +8,9 @@ import Navbar from './HomePage/Navbar';
 import Studentedit from './Students/studentedit';
 import CompanyLogin from './Company/companylogin';
 import CompanyDashboard from './Company/companyDashboard';
-import StudentLogin from './Students/studentlogin';
+import student from './Students/studentlogin';
+import dashboard from './Students/students';
+import reg from './Students/studentreg';
 
 class Main extends Component {
     render(){
@@ -17,9 +19,11 @@ class Main extends Component {
                 {/*Render Different Component based on Route*/}
                 <Route path="/" component={Navbar}/>
                 <Route path="/jobs" component={Jobs}/>
-                <Route path="/StudentLogin" component={StudentLogin}/>
+                <Route path="/StudentLogin" component={student}/>
+                <Route path="/dashboard" component={dashboard}/>
                 <Route path="/events" component={Events}/>
                 <Route path="/companylogin" component={CompanyLogin}/> 
+                <Route path="/reg" component={reg}/> 
                 <Route path="/studenteditform" component={Studentedit}/>
                 <Route path="/companysignup" component={Company} />
                 <Route path="/companydashboard" component={CompanyDashboard}/>

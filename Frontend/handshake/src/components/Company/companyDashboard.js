@@ -12,36 +12,62 @@ class CompanyDashboard extends Component
     {
         msg : [],
         disablefields : true,
-        companyname : ""
+        companyname : "",
+        authFlag: 0
     }
 
-
-
-    
-function Comment(props) {
-    return (
-      <h1>Welcome</h1>
-    );
-  }
-
-  
-
     this.jobtitlehandler = this.jobtitlehandler.bind(this);
+    this.postingdatehandler = this.postingdatehandler.bind(this);
+    this.applicationdeadlinehandler = this.applicationdeadlinehandler.bind(this);
+    this.locationhandler = this.locationhandler.bind(this);
+    this.salaryhandler = this.salaryhandler.bind(this);
+    this.jobdescriptionhandler = this.jobdescriptionhandler.bind(this);
+    this.jobcategoryhandler = this.jobcategoryhandler.bind(this);
     this.handleLoginClick = this.handleLoginClick.bind(this);
     this.handleLogoutClick = this.handleLogoutClick.bind(this);
-    
-
-
     } 
 
 
+    jobdescriptionhandler(event)
+    {
+      this.setState({jobdescription: event.target.value});
+
+    }
 
     jobtitlehandler(event) {
         this.setState({jobtitle: event.target.value});
       }
 
+      jobcategoryhandler(event)
+      {
+        this.setState({jobcategory: event.target.value});
+      }
+
+      salaryhandler(event)
+      {
+        this.setState({salary: event.target.value});
+
+      }
 
 
+      postingdatehandler(event)
+      {
+        this.setState({posting: event.target.value});
+      }
+
+
+      applicationdeadlinehandler(event)
+      {
+        this.setState({applicationdeadline: event.target.value});
+
+      }
+
+
+      locationhandler(event)
+      {
+        this.setState({location : event.target.value});
+
+      }
 componentWillMount() {
     this.setState({
         msg: []
@@ -85,6 +111,27 @@ handleLoginClick() {
 handleLogoutClick() {
   this.setState({isLoggedIn: false});
 }
+
+submitnewjob = () => {
+  const data = {
+    jobtitle : this.state.jobtitle,
+    posting:this.state.posting,
+    applicationdeadline : this.state.applicationdeadline,
+    location:this.state.location,
+    salary:this.state.salary,
+    jobdescription:this.state.jobdescription,
+    jobcategory:this.state.jobcategory
+    }
+  axios.post("http://localhost:3001/submitnewjob", data).then(response => {
+    console.log("Status Code : ", response.data);
+    if(response.data === "success")
+    {
+    this.setState({
+      authFlag : 1
+    })
+    }
+  });
+};
 
 submitmyJourney = (event, id, name) => {
   const data = {
@@ -248,9 +295,9 @@ render() {
               </div>
               <div>
                  <button
-                class="editButton"
-                onClick={this.UserGreeting}
-              ></button>
+               class="btn btn-primary"
+                onClick={this.submitnewjob}
+              >Submit new JobPosting</button>
               </div>
               </div>
         );   

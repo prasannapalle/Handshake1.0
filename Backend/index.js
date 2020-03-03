@@ -184,9 +184,120 @@ app.get('/displayjobdetails', async (req, res) => {
       res.json({ results });
       
   });
-  console.log("session var in display job ",sessvar.email);
+  console.log("session var in display job ",sessvar.emailID);
   });
 
 
+
+  app.post('/userDetailsupdate', async (req, res) => {
+ 
+    console.log('in backend axios');
+    console.log("in session",req.session.emailID);
+    con.query('update userdetails set emailID = ?, name = ? , password= ?, collegeName = ?  where emailID = ? ' , [req.session.emailID,req.body.name,req.body.password,req.body.collegeName] ,function (error, results, fields) {
+      {
+        console.log("eeeee",req.body.emailID);
+        console.log(results);
+        res.json({ results });
+        
+    }});
+    console.log("session var in display job ",sessvar.emailID);
+    });
+
+    app.get('/userDetails', function(req,res){
+      if(emailId)
+      var emailId = req.params.emailId;
+      console.log("here "+ req.session.emailID);
+      con.query( 'SELECT * from userDetails where emailID= ?',[req.session.emailID], function(error,results)
+      {
+      res.json({results});
+      console.log(results);
+      });
+      })
+
+
+      app.post('/submitnewjob',function(req,res){
+
+console.log("in submitnewjob");
+console.log(req.body);
+
+      });
+
+  app.post('/login',function(req,res){
+    sessvar=req.session;
+      console.log("Inside Login Post Request");
+      console.log("Req Body : ",req.body);
+      
+          let email= req.body.username;
+          let password1 = req.body.password;
+          con.query('SELECT * FROM userDetails WHERE emailID = ?',[email], function (error, results, fields) {
+          if (error) {
+            console.log("error ocurred",error);
+            res.send("err");
+          }else{
+            // console.log('The solution is: ', results);
+            res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
+            req.session.user = user;
+            res.writeHead(200,{
+                'Content-Type' : 'text/plain',
+               
+            })
+            if(results.length >0){
+              if(results[0].password == password1){
+               sessvar.name = results[0].name;
+               req.session.name=sessvar.name;
+               req.session.emailID = results[0].emailID;
+        console.log("sess:"+req.session.emailID);
+             
+                console.log('success');
+              
+              res.send(req.session.name);
+              
+              }
+              else{
+                res.send("fail2");
+                console.log('wrong password');
+              }
+            }
+            else{
+              res.send("fail1");
+              console.log('username doesnt exist');
+            }
+          }
+          });    
+  });
+
+
+  app.post('/reg', function (req, res) {
+    
+    console.log('reg');
+    console.log("Req Body : ",req.body);
+      var flag2=0;
+  
+      if(!req.session.user)
+      {
+          res.cookie(null);
+      }
+      else{
+          res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
+      }
+  
+      let data=[req.body.name,req.body.email,req.body.password,req.body.collegename] 
+  
+      con.query('INSERT into userDetails(name,emailID,password,collegeName) VALUES(?,?,?,?)',[req.body.name,req.body.email,req.body.password,req.body.collegename], 
+      function (error, results, fields) {
+        if (error) {
+          console.log("error ocurred",error);
+          res.send("err");
+        }
+        else{
+         console.log(data);
+         res.send("success");
+        }
+        });
+  
+      });
+
+
+    
 app.listen(3001);
 console.log("Server Listening on port 3001");
