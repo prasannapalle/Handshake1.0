@@ -3,39 +3,50 @@ import "../../App.css";
 import axios from "axios";
 import cookie from "react-cookies";
 import { Redirect } from "react-router";
-import {Link} from 'react-router-dom';
-
-import dateFormat from 'dateformat';
 import { Card, CardColumns, Form, Col, Button } from "react-bootstrap";
-// import gr from '../../assets/images/Handshake.jpg';
+
+var dateFormat = require('dateformat');
+
+
 
 class dashboard extends Component {
   constructor() {
     super();
     this.state = {
       userDetails: [],
-      studentAllEduDetailsResult: [],
-      showEdit: false,
+      showEdit: " ",
+      collegeName : " ",
+      profilePic : " ",
+      careerObjective : " ",
+      education : " ",
+     skillset:  " ",
+     dob : " ",
+    city : " ",
+     state: " ",
+    country : " ",
+     collegeLocation : " ",
+    degree : " ",
+   major : " ",
+     yearOfPassing : " ",
+      currentCGPA : " ",
+      expCompanyName : " ",
+      expCompanyTitle : " ",
+      expLocation : " ",
+      expStartD : " ",
+      expEndD : " ",
+      expDescription : " ",
+      resume : " ",
       name : " ",
       emailID : " ",
-      contactNo : " ",
-      dob : " " ,
-      city : " ",
-      state : " ",
-      country : " " ,
-      collegeName   :  " ",
-      careerObjective :  " ",
-      degree :  " ",
-      major :  " ",
-      dateOfPassing :  " ",
-      currentCGPA :  " ",
+      contactNo : " "
+    };
 
-   };
-
-   this.handleChange = this.handleChange.bind(this);
-   this.handleLogout = this.handleLogout.bind(this);
-
+    this.handleChange = this.handleChange.bind(this);
+    this.updateForm = this.updateForm.bind(this)
   }
+
+  
+
 
   componentDidMount() {
     console.log('response');
@@ -64,9 +75,9 @@ class dashboard extends Component {
   }
 
 
-  handleLogout= ()=>{
-    cookie.remove('cookie', { path: '/' })
-
+  logout= ()=>{
+    console.log('logging out')
+    this.props.history.push('/student');
   }
 
 
@@ -74,44 +85,45 @@ class dashboard extends Component {
     this.setState({ showEdit: true });
   }
 
-  // handleChange = (e, id, name) => {
-  //   const studentEduDetails = this.state.studentAllEduDetailsResult;
-  //   studentEduDetails.map(studentEduDetail => {
-  //     if (studentEduDetail.studentEduDetailsId === id) {
-  //       studentEduDetail[name] = e.target.value;
-  //       studentEduDetail.edited = true;
-  //     }
-  //   });
-  //   console.log("studentEduDetails", studentEduDetails);
-  //   this.setState({ studentAllEduDetailsResult: studentEduDetails });
-  // };
-
   updateForm = (e) => {
     this.setState({ showEdit: false });
-    console.log("in update form");
     //set the with credentials to true
     axios.defaults.withCredentials = true;
     //make a post request with the user data
-    const data = {
-     userDetails : this.state.userDetails
-    };
-    console.log("data",this.state.userDetails);
-    axios.post('http://localhost:3001/userDetailsupdate/',data) .then((response) => {
-      //update the state with the response data
-      console.log('response', response.data["results"]);
-      this.setState({
-        userDetails: response.data["results"]
-      });
-      this.setState(response.data["results"]); //Initial Values
-    });
     console.log('User Details',this.state.userDetails);
     console.log('User Details',this.state);
+    axios.defaults.withCredentials = true;
+
+    const data = 
+    {
+           userDetails : this.state.userDetails 
+    }
+    axios.post('http://localhost:3001/updatedetails',data)
+        .then(response => {
+        console.log("Status Code : ",response.status);
+        
+       console.log("in update frontend",data);   
+
+    });
 
   }
 
-  handleChange = (e) => {
-    this.setState({[e.target.name]: e.target.value});
-  }
+  handleChange = (event,name) => {
+    const userDetailsnew = this.state.userDetails;
+
+    this.setState({
+    [event.target.name]: event.target.value
+    });
+
+    console.log("userDetailsNew==>"+JSON.stringify(userDetailsnew));
+    userDetailsnew[name] = event.target.value;
+    console.log("userDetailsNew2==>"+JSON.stringify(userDetailsnew));
+
+    console.log("in handle change",event.target.name);
+    this.setState({ userDetails: userDetailsnew });
+    console.log("userDetailsnew",this.state.userDetails);
+    };
+
 
   handleSubmit = (e) => {
     e.preventDefault();
@@ -143,53 +155,29 @@ class dashboard extends Component {
 
 
   render() {
-
-    let navLogin = null;
-    if(cookie.load('cookie')){
-        console.log("Able to read cookie");
-        navLogin = (
-            <ul class="nav navbar-nav navbar-right">
-                    <li><Link to="/" onClick = {this.handleLogout}><span class="glyphicon glyphicon-user"></span>Logout</Link></li>
-            </ul>
-        ); 
-    }else{
-        //Else display login button
-        console.log("Not Able to read cookie");
-        navLogin = (
-            <ul class="nav navbar-nav navbar-right">
-                    <li><Link to="/login"><span class="glyphicon glyphicon-log-in"></span> Login</Link></li>
-            </ul>
-        )
-    }
-    let redirectVar = null;
-    if(cookie.load('cookie')){
-        redirectVar = <Redirect to="/dashboard"/>
-    }
-
     var dis,dashboard;
       
         dis=(
      <div><img style={{float:"left",height:"300px",width:"300px",marginLeft:"20px"}} /> 
-     
     <Card className="text-center" bg="primary" >
-        <Card.Header style = {{ color : "black" }} >WELCOME TO DASHBOARD,{sessionStorage.getItem("name")}!!! </Card.Header>
-        
+        <Card.Header>WELCOME TO DASHBOARD</Card.Header>
         <Card.Body>
+          <Card.Title> <h1>{sessionStorage.getItem("name")}</h1></Card.Title>
           <Card.Text>
            
           </Card.Text>
-          <button onClick={this.editForm} class="btn btn-success" >Edit Details</button>
-        
+          <button onClick={this.editForm} class="btn btn-success" >Edit</button>
+          <Button variant="danger" onClick={this.logout}>Log Out!</Button>
           
         </Card.Body>
-        <Card.Footer><div>{navLogin}</div></Card.Footer>
+        <Card.Footer className="text-muted"></Card.Footer>
         <br></br>
       </Card>
       </div>)
 
-    
+    let redirectVar = null;
     if (!cookie.load('cookie')) {
-      redirectVar = <Redirect to="/StudentLogin" />
+      redirectVar = <Redirect to="/login" />
     }
     // var userDetails = this.state.userDetails;
     var showEdit = this.state.showEdit;
@@ -200,7 +188,6 @@ class dashboard extends Component {
     dashboard = this.state.userDetails.map(userDetails => {
     return (
       <div>
-       
         {dis}
         {showEdit !== undefined && !showEdit &&
           <div>
@@ -223,7 +210,7 @@ class dashboard extends Component {
               <Card>
                 <Card.Header>Personal Details</Card.Header>
                 <Card.Body>
-                  <Card.Text>DOB : {dateFormat(userDetails.dob, "mmmm dS, yyyy")}</Card.Text>
+                  <Card.Text>DOB : {userDetails.dob}</Card.Text>
                   <Card.Text>Contact No : {userDetails.contactNo}</Card.Text>
                   <Card.Text>City : {userDetails.city}</Card.Text>
                   <Card.Text>State : {userDetails.state}</Card.Text>
@@ -268,7 +255,7 @@ class dashboard extends Component {
                   type="text"
                   placeholder="First name"
                   defaultValue={userDetails.name}
-                  onChange={this.handleChange}
+                  onChange={this.handleChangename}
                   name="name"
                 />
                 <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
@@ -291,7 +278,7 @@ class dashboard extends Component {
                   required
                   type="text"
                   placeholder="Contact No"
-                  defaultValue={userDetails.emailID}
+                  defaultValue={userDetails.contactNo}
                   onChange={this.handleChange}
                   name="contactNo"
                 />
@@ -305,7 +292,7 @@ class dashboard extends Component {
                 <Form.Control type="date" onChange={this.handleChange}
                   name="dob" defaultValue={dateFormat(userDetails.dob,"yyyy-mm-dd")} placeholder="Date of Birth" required />
                 <Form.Control.Feedback type="invalid">
-                  Please provide a valid DOB.
+                  Please provide a valid city.
           </Form.Control.Feedback>
               </Form.Group>
               <Form.Group as={Col} md="3" controlId="validationCustom04">
@@ -346,7 +333,7 @@ class dashboard extends Component {
               </Form.Group>
               <Form.Group as={Col} md="3" controlId="validationCustom04">
                 <Form.Label>Career Objective</Form.Label>
-                <Form.Control  onChange={this.handleChange}
+                <Form.Control onChange={this.handleChange}
                   name="careerObjective" type="text" defaultValue={userDetails.careerObjective} placeholder="Career Objective" required />
                 <Form.Control.Feedback type="invalid">
                   Please provide a valid state.
@@ -354,7 +341,7 @@ class dashboard extends Component {
               </Form.Group>
               <Form.Group as={Col} md="3" controlId="validationCustom05">
                 <Form.Label>Degree</Form.Label>
-                <Form.Control onChange={this.handleChange}
+                <Form.Control  onChange={this.handleChange}
                   name="degree" type="text" defaultValue={userDetails.degree} placeholder="Degree" required />
                 <Form.Control.Feedback type="invalid">
                   Please provide a valid zip.
@@ -372,7 +359,7 @@ class dashboard extends Component {
               </Form.Group>
               <Form.Group as={Col} md="3" controlId="validationCustom04">
                 <Form.Label>Year Of Passing</Form.Label>
-                <Form.Control type="date"  onChange={this.handleChange}
+                <Form.Control type="date"onChange={this.handleChange}
                   name="dateOfPassing" defaultValue={dateFormat(userDetails.dateOfPassing,"yyyy-mm-dd")} placeholder="Year Of Passing" required />
                 <Form.Control.Feedback type="invalid">
                   Please provide a valid state.
@@ -380,7 +367,7 @@ class dashboard extends Component {
               </Form.Group>
               <Form.Group as={Col} md="3" controlId="validationCustom05">
                 <Form.Label>Current CGPA</Form.Label>
-                <Form.Control type="text"  onChange={this.handleChange}
+                <Form.Control type="text" onChange={this.handleChange}
                   name="currentCGPA" defaultValue={userDetails.currentCGPA} placeholder="Current CGPA" required />
                 <Form.Control.Feedback type="invalid">
                   Please provide a valid zip.
@@ -390,7 +377,7 @@ class dashboard extends Component {
             <Form.Row>
               <Form.Group as={Col} md="6" controlId="validationCustom03">
                 <Form.Label>Company Name</Form.Label>
-                <Form.Control type="text"  onChange={this.handleChange}
+                <Form.Control type="text" onChange={this.handleChange}
                   name="expCompanyName" defaultValue={userDetails.expCompanyName} placeholder="Company Name" required />
                 <Form.Control.Feedback type="invalid">
                   Please provide a valid city.
@@ -398,7 +385,7 @@ class dashboard extends Component {
               </Form.Group>
               <Form.Group as={Col} md="3" controlId="validationCustom04">
                 <Form.Label>Company Title</Form.Label>
-                <Form.Control type="text"  onChange={this.handleChange}
+                <Form.Control type="text" onChange={this.handleChange}
                   name="expCompanyTitle" defaultValue={userDetails.expCompanyTitle} placeholder="Company Title" required />
                 <Form.Control.Feedback type="invalid">
                   Please provide a valid state.
@@ -406,7 +393,7 @@ class dashboard extends Component {
               </Form.Group>
               <Form.Group as={Col} md="3" controlId="validationCustom05">
                 <Form.Label>Location</Form.Label>
-                <Form.Control type="text"  onChange={this.handleChange}
+                <Form.Control type="text" onChange={this.handleChange}
                   name="expLocation" defaultValue={userDetails.expLocation} placeholder="Location" required />
                 <Form.Control.Feedback type="invalid">
                   Please provide a valid zip.
@@ -417,7 +404,7 @@ class dashboard extends Component {
             <Form.Row>
               <Form.Group as={Col} md="6" controlId="validationCustom03">
                 <Form.Label>Start Date</Form.Label>
-                <Form.Control type="date"  onChange={this.handleChange}
+                <Form.Control type="date" onChange={this.handleChange}
                   name="expStartDate" defaultValue={dateFormat(userDetails.expStartDate,"yyyy-mm-dd")} placeholder="Start Date" required />
                 <Form.Control.Feedback type="invalid">
                   Please provide a valid city.
@@ -425,7 +412,7 @@ class dashboard extends Component {
               </Form.Group>
               <Form.Group as={Col} md="3" controlId="validationCustom04">
                 <Form.Label>End Date</Form.Label>
-                <Form.Control type="date"  onChange={this.handleChange}
+                <Form.Control type="date" onChange={this.handleChange}
                   name="expEndDate" defaultValue={dateFormat(userDetails.expEndDate,"yyyy-mm-dd")} placeholder="End Date" required />
                 <Form.Control.Feedback type="invalid">
                   Please provide a valid state.
@@ -433,7 +420,7 @@ class dashboard extends Component {
               </Form.Group>
               <Form.Group as={Col} md="3" controlId="validationCustom05">
                 <Form.Label>Job Description</Form.Label>
-                <Form.Control  onChange={this.handleChange}
+                <Form.Control onChange={this.handleChange}
                   name="expDescription" type="text" defaultValue={userDetails.expDescription} placeholder="Job Description" required />
                 <Form.Control.Feedback type="invalid">
                   Please provide a valid zip.
@@ -457,7 +444,7 @@ class dashboard extends Component {
       </div>
     );
       });
-    return (<div><div>{redirectVar}</div><div>{dashboard}</div></div>)
+      return <div>{dashboard}</div>
     
   }
 

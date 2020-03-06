@@ -144,7 +144,8 @@ app.post('/companysignup', function (req, res) {
   {
   res.cookie(null);
   }
-  else{
+  else
+  {
   res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
   }
   
@@ -189,10 +190,11 @@ app.get('/displayjobdetails', async (req, res) => {
 
 
 
-  app.post('/userDetailsupdate', async (req, res) => {
+  app.post('/updatedetails', async (req, res) => {
  
     console.log('in backend axios');
     console.log("in session",req.session.emailID);
+    console.log("in updatedetails",req.body);
     con.query('update userdetails set emailID = ?, name = ? , password= ?, collegeName = ?  where emailID = ? ' , [req.session.emailID,req.body.name,req.body.password,req.body.collegeName] ,function (error, results, fields) {
       {
         console.log("eeeee",req.body.emailID);
@@ -204,14 +206,29 @@ app.get('/displayjobdetails', async (req, res) => {
     });
 
     app.get('/userDetails', function(req,res){
-      if(emailId)
-      var emailId = req.params.emailId;
+
+      var emailId = "'"+req.body.emailId+"'";
+      // if(emailId)
+      // var emailId = req.params.emailId;
       console.log("here "+ req.session.emailID);
       con.query( 'SELECT * from userDetails where emailID= ?',[req.session.emailID], function(error,results)
       {
       res.json({results});
       console.log(results);
       });
+      // var dbQuery = "Select * from userDetails Where emailID = " + emailId;
+
+    //   con.query(
+    //     dbQuery,
+    //     (err, rows) => {
+    //     if (err) throw err;   
+    //     console.log('Data received from Db:\n');
+    //     console.log(rows);
+    //     res.body = rows;
+    //     return res.send(rows[0]);
+    //     }
+    // );
+     
       })
 
 
@@ -221,6 +238,64 @@ console.log("in submitnewjob");
 console.log(req.body);
 
       });
+
+
+
+  app.post('/updateform', function(req,res)
+  {
+
+    let updateUser = (req,res) => {
+    
+      var collegeName = req.body.collegeName;
+      var profilePic = req.body.profilePic;
+      var careerObjective = req.body.careerObjective;
+      var education = req.body.education;
+      var skillset = req.body.skillset;
+      var dob = req.body.dob;
+      var city = req.body.city;
+      var state = req.body.state;
+      var country = req.body.country;
+      var collegeLocation = req.body.collegeLocation;
+      var degree = req.body.degree;
+      var major = req.body.major;
+      var yearOfPassing = req.body.yearOfPassing;
+      var currentCGPA = req.body.currentCGPA;
+      var expCompanyName = req.body.expCompanyName;
+      var expCompanyTitle = req.body.expCompanyTitle;
+      var expLocation = req.body.expLocation;
+      var expStartD = req.body.expStartDate;
+      var expEndD = req.body.expEndDate;
+      var expDescription = req.body.expDescription;
+      var resume = req.body.resume;
+      var name = req.body.name;
+      var emailID = req.body.emailID;
+      var contactNo = req.body.contactNo;
+  
+      var dbQuery = "UPDATE userDetails SET name='"+name+"', collegeName='"+ collegeName+"', careerObjective='"+ careerObjective+"', careerObjective='"+ careerObjective+"', education='"+ education+"', skillset='"+ skillset+"', dob='"+ dob+"', city='"+ city+"', state='"+ state+"', country='"+ country+"', collegeLocation='"+ collegeLocation+"', degree='"+ degree+"', major='"+ major+"', yearOfPassing='"+ yearOfPassing+"', currentCGPA='"+ currentCGPA+"', expCompanyName='"+ expCompanyName+"', expCompanyTitle='"+ expCompanyTitle+"', expLocation='"+ expLocation+"', expStartDate='"+ expStartD+"', expEndDate='"+ expEndD+"', expDescription='"+ expDescription+"', resume='"+ resume +"',contactNo = '" + contactNo +"' WHERE emailID = '" + emailID + "'"; 
+  
+      dbCon.con.query(
+          dbQuery,
+          (err, rows) => {
+              if (err){
+                  console.log('error while updating'+err);
+                  res.writeHead(401, {
+                      "Content-Type": "text/plain"
+                  });
+                  res.end("Error Occurred");
+              }else{
+                  console.log('server response while updating');
+                  res.writeHead(200, {
+                      "Content-Type": "text/plain"
+                  });
+                  res.end("User Updated");
+              } 
+          }
+      );
+  }
+  
+    console.log("in update form",req.body);
+
+  })
 
   app.post('/login',function(req,res){
     sessvar=req.session;
@@ -237,10 +312,10 @@ console.log(req.body);
             // console.log('The solution is: ', results);
             res.cookie('cookie',"admin",{maxAge: 900000, httpOnly: false, path : '/'});
             req.session.user = user;
-            res.writeHead(200,{
-                'Content-Type' : 'text/plain',
+            // res.writeHead(200,{
+            //     'Content-Type' : 'text/plain',
                
-            })
+            // })
             if(results.length >0){
               if(results[0].password == password1){
                sessvar.name = results[0].name;

@@ -16,7 +16,8 @@ class student extends Component{
         this.state = {
             username : "",
             password : "",
-            authFlag : false
+            authFlag : false,
+            
         }
         //Bind the handlers to this class
         this.usernameChangeHandler = this.usernameChangeHandler.bind(this);
@@ -89,9 +90,9 @@ class student extends Component{
         console.log(this.state.authFlag);
         //redirect based on successful login
         var redirectVar = null;
-        if(cookie.load('cookie')){
-            redirectVar = <Redirect to= "/dashboard"/>
-        } 
+        // if(cookie.load('cookie')){
+        //     redirectVar = <Redirect to= "/dashboard"/>
+        // } 
         
       if(this.state.authFlag===1)
         redirectVar=<p style={{color:"red",textAlign:"center"}}> USERNAME DOESNOT EXIST </p>;
