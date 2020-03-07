@@ -1,34 +1,41 @@
 import React, {Component} from 'react';
 import {Route} from 'react-router-dom';
-import Jobs from './Jobs/Jobs'
-import Events from './Events/events'
-import Company from './Company/company';
-import Students from './Students/students';
-import Navbar from './HomePage/Navbar';
-import Studentedit from './Students/studentedit';
-import CompanyLogin from './Company/companylogin';
-import CompanyDashboard from './Company/companyDashboard';
-import student from './Students/studentlogin';
-import dashboard from './Students/students';
-import reg from './Students/studentreg';
-
+import Login from './Login/Login';
+import Register from './Login/Register';
+import Home from './Home/home';
+import Profile from './Profile/Profile'
+// import Delete from './Delete/Delete';
+// import Create from './Create/Create';
+import CompanyDashboard from './Company/Companydashboard';
+ import HeaderBar from './Util/HeaderBar';
+ import Events from './Events/Events';
+ import Applications from './Applications/Applications';
+ import Students from './Students/Students'
+ import studentprofile from './Students/studentprofile'
+import CompanyLogin from "./Company/Company";
+import { Provider } from "react-redux";
+import store from "../ReduxModules/store/index";
+//Create a Main Component
 class Main extends Component {
     render(){
         return(
+            <Provider store={store}>
             <div>
                 {/*Render Different Component based on Route*/}
-                <Route path="/" component={Navbar}/>
-                <Route path="/jobs" component={Jobs}/>
-                <Route path="/StudentLogin" component={student}/>
-                <Route path="/dashboard" component={dashboard}/>
+                <Route  path="/" component={HeaderBar}/> 
+                <Route path="/login" component={Login}/>
+                 <Route path="/home" component={Home}/>
+                <Route path="/profile" component={Profile}/>
                 <Route path="/events" component={Events}/>
-                <Route path="/companylogin" component={CompanyLogin}/> 
-                <Route path="/reg" component={reg}/> 
-                <Route path="/studenteditform" component={Studentedit}/>
-                <Route path="/companysignup" component={Company} />
+                <Route path="/applications" component={Applications}/>
+                <Route path="/register" component={Register}/>
+                <Route path="/students" component={Students}/>
+                <Route path="/studentprofile/:id" component={studentprofile}/>
+                <Route path="/companylogin" component={CompanyLogin}/>
                 <Route path="/companydashboard" component={CompanyDashboard}/>
-            
+                {/*<Route path="/create" component={Create}/> */}
             </div>
+            </Provider>
         )
     }
 }
