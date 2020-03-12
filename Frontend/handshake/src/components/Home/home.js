@@ -11,7 +11,9 @@ class Home extends Component {
         super();
         this.state = {  
             jobs : [],
-            savedapp : ""
+            savedapp : "",
+            searchValue: "",
+            jobStatus : ""
         }
         this.saveApplication = this.saveApplication.bind(this)
     }  
@@ -21,8 +23,45 @@ class Home extends Component {
                 .then((response) => {
                 //update the state with the response data
                 this.setState({
-                    jobs : this.state.jobs.concat(response.data) 
+                    jobs : (response.data) 
                 });
+            });
+    }
+
+
+    
+    handleStatusChange(event)
+    {
+        this.setState({jobStatus: event.target.value});
+    }
+
+
+    handleOnChange(event)
+    {
+        this.setState({searchValue: event.target.value});
+
+    }
+
+
+    searchforprofile = (e) =>
+    {
+        const data = {
+            jobStatus: this.state.jobStatus,
+            searchValue: this.state.searchValue
+          };
+          console.log("Data is", data);
+          axios
+            .post(
+              `http://localhost:8080/studentdatafilter`,
+              data
+            )
+            .then(response => {
+                console.log("response data",response.data);
+                this.setState({
+                    jobs : response.data
+                });
+                console.log("events",this.state.events);
+                
             });
     }
 
@@ -71,6 +110,7 @@ return (<h1>sss</h1>);
 				<div className="well" style ={{height:'175px',width:'50%'}}>
 						<h3>{job.postion}</h3>
                         <p> {job.job_desc}, {job.job_location} </p>
+                        <p> {job.category} </p>
                         {this.state.savedapp}
                         <button  style = {{width :'50px',height:'30px'}} id="saveEducationButton" ref={ref => this.saveEducationButton = ref} value="Apply" onClick = {(e)=>this.saveApplication(job.job_id)}>Apply </button>
             <Popup trigger={<a style = {{float:'right', fontWeight:500}}> {job.company_name} </a>}
@@ -90,6 +130,31 @@ return (<h1>sss</h1>);
         }
         return(
             <div  align="center">
+                 <select
+              placeholder="Enter the Job Category"
+              defaultValue=""
+              class="editableinput10"
+              name="jobStatus"
+              onChange={e => this.handleStatusChange(e)}
+            >
+              <option value=""></option>
+              <option value="Full Time">Full Time</option>
+              <option value="Internship">Internship</option>
+              <option value="Part Time">Part Time</option>
+             
+            </select>
+            <input
+              name="text"
+              type="text"
+              class="searchComponent"
+              placeholder="Enter the Job Category"
+              onChange={event => this.handleOnChange(event)}
+              value={this.state.searchValue}
+            />
+            <button style={{width:"200px"}} onClick={event =>
+                  this.searchforprofile(
+                    event
+                  )}>Search</button>
                 {redirectVar}
                 <div className="container">
                     <h2>List of All jobs</h2>

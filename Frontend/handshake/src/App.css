@@ -119,16 +119,16 @@ input[disabled]{
 .glyphicon-user,
 .glyphicon-login
 {
-  color:black !important;
+  color:white !important;
 }
 
 .navbar-inverse
 {
-  background-color:cyan !important
+  background-color:#1569e0 !important
 }
 
 .navbar-inverse .navbar-nav>li>a{
-  color:black
+  color:white;
 }
 
 .register-form {

@@ -97,10 +97,12 @@ console.log("inside submitevent",request.body);
         console.log("in company events",results);
     });
     
-    if(results.affectedRows >= 1)
-    {
+   if(results)
+   {
+        console.log("event successfully created");
         response.send("success");
-    }
+   }
+    
 
 });
 
@@ -379,6 +381,37 @@ response.json({results});
 );
 
 
+app.post('/studentjobsOnCategory',async function(request,response)
+{
+    var student_id = request.session.company_id;
+    var jobstatus = request.body.jobStatus;
+    console.log("jobsattus",jobstatus);
+    data = [student_id ,jobstatus];
+    var eventsQuery = "select job_postings.*,map_student_job.application_status from job_postings INNER JOIN map_student_job ON job_postings.job_id= map_student_job.fk_job_id where map_student_job.fk_student_id= ? and map_student_job.application_status = ? ";
+
+    results = await getResults(eventsQuery,data);
+
+    console.log("results",results);
+    response.send(results);
+
+}) 
+
+
+
+app.post('/searchforskill',async function(request,response)
+{
+    var searchskill = request.body.searchValue;
+    data = [searchskill];
+    var eventsQuery = "SELECT * FROM students where skills like '%' ? '%' ";
+
+
+    results = await getResults(eventsQuery,data);
+
+    console.log("results",results);
+    response.send(results);
+
+}) 
+
 app.get('/getAllStudents',async function(request,response){
     var studentsQuery = 'select * from students';
    // values = [1]
@@ -389,7 +422,7 @@ app.get('/getAllStudents',async function(request,response){
 
 
 app.get('/showstudentlist',async function(request,response){
-    var studentsQuery = 'select * from students join student_experience_details where students.student_id = student_experience_details.fk_student_id';
+    var studentsQuery = 'select * from students';
    // values = [1]
     results = await getResults(studentsQuery);
     response.send(results);
@@ -411,6 +444,60 @@ app.post('/applyforevent',async function(request,response){
    
     response.send(""+results.affectedRows);
 })
+
+
+app.post('/studentdatafilter',async function(request,response){
+
+    console.log("in student datafilter");
+  console.log(request.body);
+  var jobstatus = request.body.jobStatus;
+  var searchval = request.body.searchValue;
+  values = [searchval,jobstatus];
+   
+   var insertQuery =  "SELECT * from company join job_postings where company.company_id=job_postings.fk_company_id and job_postings.postion like '%' ? '%' and job_postings.category = ?";
+
+    console.log("insertQuery",insertQuery);
+    results = await getResults(insertQuery,values);
+   // values = [1]
+   console.log("results",results);
+//    console.log("affected rows",results.affectedRows);
+
+   
+    response.send(results);
+})
+
+
+
+app.post('/filterevents',async function(request,response){
+
+    var student_id = request.session.company_id;
+    var jobstatus = request.body.jobStatus;
+    console.log("jobsattus",jobstatus);
+    data = [student_id ,jobstatus];
+    var eventsQuery = "select job_postings.*,map_student_job.application_status from job_postings INNER JOIN map_student_job ON job_postings.job_id= map_student_job.fk_job_id where map_student_job.fk_student_id= ? and map_student_job.application_status = ? ";
+
+    results = await getResults(eventsQuery,data);
+
+    console.log("results",results);
+    response.send(results);
+
+   
+    response.send(""+results.affectedRows);
+})
+
+
+
+
+app.get('/showapplicationshome', function(request, response) {
+	if (true) {
+        var jobPostings;
+        renderJobsPage(request, response,jobPostings)
+        
+	} else {
+        response.redirect('/');
+	}
+	//response.end();
+});
 
 app.put('/profile/editExperience/:id', function(request, response) {
     if (true) {
@@ -571,6 +658,42 @@ async function renderProfilePage(request,response, studentObject,stduentEducatio
         });
 }
 
+
+app.get('/cupd',async function(request,response){
+    var studentsQuery = 'select * from company where company_id= '+request.session.company_id;
+    results = await getResults(studentsQuery);
+    response.json({results});
+    response.end()
+    console.log(results);
+})
+
+app.post('/cupd1',async function(request,response){
+    var z = request.session.company_id;
+    var cname=request.body.cname;
+    var cdesc=request.body.jobdesc;
+    var cemail=request.body.email;
+    var cphone=request.body.phoneno;
+    var ccity=request.body.city;
+    var cstate=request.body.state;
+    var ccountry=request.body.country;
+
+    console.log("cupd1")
+    console.log(z);
+    console.log(cname);
+
+console.log("cemail",cemail);
+    var applicationsQuery = "UPDATE company SET company_name = ?, company_desc = ?, email =?, phone_no = ?, city = ?, state = ?, country = ? WHERE company_id =?" ;
+
+    var ds=[cname,cdesc,cemail,cphone,ccity,cstate,ccountry,z]
+    results = await getResults(applicationsQuery,ds);
+    console.log(results);
+    response.writeHead(200,{
+    'Content-Type' : 'text/plain'
+    })
+    response.end("updated");;
+
+})
+
 async function renderHomePage(request,response,jobPostings){
    var responseObject ;
     // var jobPostingsQuery = "select * from job_postings ";
@@ -586,16 +709,35 @@ async function renderHomePage(request,response,jobPostings){
 }
 
 async function renderEventsPage(request,response,events){
-    var eventsQuery = "select * from company_events ";
-    results = await getResults(eventsQuery);  
+    var company_id = request.session.company_id;
+    console.log("company_id",company_id);
+    values = [company_id];
+    var eventsQuery = "select * from company_events where fk_company_id = ? ";
+    results = await getResults(eventsQuery,values);  
     //console.log(results[1].job_desc);
+    
     events = await results;
+    console.log("results",events);
    // console.log('postings:'+jobPostings.job_desc)
 	response.send(events)
 }
 
 
+async function renderJobsPage(request,response,events){
 
+    var company_id = request.session.company_id;
+    values = [company_id];
+    console.log("company_id",company_id);
+    // var eventsQuery = "select * from job_postings join map_student_job where job_postings.job_id =  map_student_job.fk_student_id and map_student_job.fk_student_id = ?";
+    // var eventsQuery = "SELECT *  FROM job_postings join map_student_job WHERE job_postings.job_id =  map_student_job.fk_student_id IN (SELECT  *  FROM map_student_job  WHERE fk_student_id = ?) ";
+    var eventsQuery = "select job_postings.*,map_student_job.application_status from job_postings INNER JOIN map_student_job ON job_postings.job_id= map_student_job.fk_job_id where map_student_job.fk_student_id= ? ";
+    results = await getResults(eventsQuery,values);  
+    //console.log(results[1].job_desc);
+    events = await results;
+    console.log("events",events);
+   // console.log('postings:'+jobPostings.job_desc)
+	response.send(events)
+}
 
 app.get('/viewallevents',async function(request,response){
     var eventsQuery = "select * from company_events ";
@@ -607,3 +749,18 @@ app.get('/viewallevents',async function(request,response){
 })
 
 
+
+
+app.post('/eventnamefilter',async function(request,response){
+    console.log("in eventname filter");
+    
+    var searchvalue = request.body.searchValue;
+    values = [searchvalue];
+    var eventsQuery = "select * from company_events where event_name like '%' ? '%' ";
+    results = await getResults(eventsQuery,values);  
+    //console.log(results[1].job_desc);
+    events = await results;
+    console.log(events);
+   // console.log('postings:'+jobPostings.job_desc)
+	response.send(events);
+})

@@ -75,6 +75,10 @@ class Navbar extends Component {
                      <li><Link to="/studentevents">Events</Link></li>
 
                      
+                     <li><Link to="/applications">Applications</Link></li>
+
+
+                     
                      </ul>    
              
             //  })
@@ -82,7 +86,7 @@ class Navbar extends Component {
             navLogin = (
                 <ul className="nav navbar-nav navbar-right">
                         {headers }
-                        <li><Link  style = {{color:'black'}} to="/" onClick = {this.handleLogout}><span className="glyphicon glyphicon-user"></span>Logout</Link></li>
+                        <li><Link  style = {{color:'white'}} to="/" onClick = {this.handleLogout}><span className="glyphicon glyphicon-user"></span>Logout</Link></li>
                 </ul>
             );
     }

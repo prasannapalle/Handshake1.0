@@ -26,7 +26,8 @@ class StudentEvents extends Component
         carlist : "",
         authFlag :0,
         companyname : "",
-        allevents : []
+        allevents : [],
+        searchValue :""
         
     }
 
@@ -42,6 +43,11 @@ class StudentEvents extends Component
   
     } 
 
+    handleOnChange(event)
+    {
+        this.setState({searchValue: event.target.value});
+
+    }
 
     eventnamehandler(event)
     {
@@ -153,6 +159,28 @@ submitnewevent = () => {
 };
 
 
+
+searchforeventname = (e) =>
+{
+    const data = {
+        searchValue: this.state.searchValue
+      };
+      console.log("Data is", data);
+      axios
+        .post(
+          `http://localhost:8080/eventnamefilter`,
+          data
+        )
+        .then(response => {
+            console.log("response data",response.data);
+            this.setState({
+                events : response.data,
+                allevents : response.data
+            });
+            console.log("events",this.state.events);
+            
+        });
+}
 
 viewapplications = (e,jobid) =>
 {
@@ -281,7 +309,6 @@ render() {
           this.state.allevents.map(event => {
             return(
               <div>
-                {this.state.eventmsg}
                 {redirectVar}
                 <div className="row" key = {event.event_name}>	
                 <div className="well" style ={{height:'175px',width:'50%'}}>
@@ -348,6 +375,21 @@ render() {
    
           return (
             <div>
+                           <h3 style={{color : 'green'}}>{this.state.eventmsg}</h3>  
+
+            <input
+              name="text"
+              type="text"
+              class="searchComponent"
+              placeholder="  Search for an Event Name / Location"
+              onChange={event => this.handleOnChange(event)}
+              value={this.state.searchValue}
+            />
+            <button style={{width:"200px"}} onClick={event =>
+                  this.searchforeventname(
+                    event
+                  )}>Search</button>
+            
                 {redirectVar}
               {/* <Welcome name={this.state.companyname}/> */}
             <AddnewPost isLoggedIn={isLoggedIn} />

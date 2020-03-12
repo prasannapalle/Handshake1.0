@@ -24,7 +24,9 @@ class Events extends Component
         location : "",
         carlist : "",
         authFlag :0,
-        companyname : ""
+        companyname : "",
+        successmsg : "",
+        searchValue :""
         
     }
 
@@ -127,7 +129,9 @@ submitnewevent = () => {
     if(response.data === "success")
     {
     this.setState({
-      authFlag : 1
+      authFlag : 1,
+      successmsg : "Event Successfully created"
+
     })
     }
   });
@@ -143,6 +147,28 @@ viewapplications = (e,jobid) =>
       })
     // redirectVar = <Redirect to="/viewapplications" />
 }
+
+
+searchstring = (e) =>
+    {
+        const data = {
+            searchValue: this.state.searchValue
+          };
+          console.log("Data is", data);
+          axios
+            .post(
+              `http://localhost:8080/filterevents`,
+              data
+            )
+            .then(response => {
+                console.log("response data",response.data);
+                this.setState({
+                    events : response.data
+                });
+                console.log("events",this.state.events);
+                
+            });
+    }
 
 
 register = (eventid) =>
@@ -213,7 +239,9 @@ render() {
         <div  style ={{width:'50%'}}>
           <button align="center" class="btn btn-primary" onClick={props.onClick}>
        Post New Event
-        </button>   
+        </button>
+
+         
         </div>         
       );
     }
@@ -225,9 +253,6 @@ render() {
                     </button>
       );
     }
-
-
-
 
 
       if (isLoggedIn) {
@@ -244,10 +269,12 @@ render() {
         signupform = 
         (   
           <div class="container register-form">  
-          {redirectVar}      
+          {redirectVar}  
+        <div><h2>{this.state.successmsg}</h2></div>
+
       <div class="form">
           <div class="note">
-              <h2>Post new Event</h2>
+              <h2>Post New Event</h2>
           </div>
 
           <div class="form-content" align="center">

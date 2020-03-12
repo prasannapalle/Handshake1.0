@@ -11,11 +11,41 @@ class StudentList extends Component
         this.state = {  
             studentnames : [],
             status : "",
-            statustext: ""
+            statustext: "",
+            searchValue : " "
         }
 
         this.statushandler = this.statushandler.bind(this);
         this.updatethestatus = this.updatethestatus.bind(this);
+    }
+
+    handleOnChange(event)
+    {
+        this.setState({searchValue: event.target.value});
+
+    }
+
+
+    searchforskill = (e) =>
+    {
+        const data = {
+            
+            searchValue: this.state.searchValue
+          };
+          console.log("Data is", data);
+          axios
+            .post(
+              `http://localhost:8080/searchforskill`,
+              data
+            )
+            .then(response => {
+                console.log("response data",response.data);
+                this.setState({
+                  studentnames : response.data
+                });
+                console.log("events",this.state.events);
+                
+            });
     }
 
 
@@ -105,6 +135,7 @@ render()
     var msgstudent;
     msgstudent = (
 
+
         this.state.studentnames.map(student => {
 
 
@@ -152,8 +183,23 @@ render()
   
 
     return(
+      <div>
+           
+            <input
+              name="text"
+              type="text"
+              class="searchComponent"
+              placeholder="  Search for an Event Name / Location"
+              onChange={event => this.handleOnChange(event)}
+              value={this.state.searchValue}
+            />
+            <button style={{width:"200px"}} onClick={event =>
+                  this.searchforskill(
+                    event
+                  )}>Search</button>
      <div align="center">
     <div>{msgstudent}</div>
+    </div>
     </div>
     );
 }
