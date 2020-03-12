@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
+import './App.css';
 import Main from './components/Main';
 import {BrowserRouter} from 'react-router-dom';
-import Create from './components/Students/students'
+
 
 //App Component
-
 class App extends Component {
   render() {
     return (
@@ -13,7 +13,6 @@ class App extends Component {
         <div>
           {/* App Component Has a Child Component called Main*/}
           <Main/>
-          {/* <Create/> */}
         </div>
       </BrowserRouter>
     );

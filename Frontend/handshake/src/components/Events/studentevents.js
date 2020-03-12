@@ -5,7 +5,7 @@ import Popup from "reactjs-popup";
 import {Redirect} from 'react-router';
 
 
-class Events extends Component
+class StudentEvents extends Component
 {
     constructor(props)
     {
@@ -14,6 +14,7 @@ class Events extends Component
         this.state = 
     {
         msg : [],
+        eventmsg : "",
         disablefields : true,
         eventname : "",
         authFlag: 0,
@@ -24,7 +25,8 @@ class Events extends Component
         location : "",
         carlist : "",
         authFlag :0,
-        companyname : ""
+        companyname : "",
+        allevents : []
         
     }
 
@@ -80,17 +82,31 @@ componentWillMount() {
 componentDidMount()
 {
   
-        axios.get('http://localhost:8080/events')
+        axios.get('http://localhost:8080/viewregisteredevents')
                 .then((response) => {
                     console.log("in events");
                     console.log(response.data);
                     
                 //update the state with the response data
                 this.setState({
-                    events : this.state.events.concat(response.data),
-                    companyname :  sessionStorage.getItem("cname"),
+                    events : response.data["results"],
+                    companyname :  sessionStorage.getItem("cname")
                 });
+                console.log("events",this.state.events);
             });
+
+            axios.get('http://localhost:8080/viewallevents')
+            .then((response) => {
+                console.log("in All events");
+                console.log("in all events",response.data["results"]);
+                
+            //update the state with the response data
+            this.setState({
+                allevents : response.data["events"],
+                companyname :  sessionStorage.getItem("cname")
+            });
+            console.log("events",this.state.allevents);
+        });
     
 }
 
@@ -105,13 +121,16 @@ enablefields = (props) => {
         props.disabled = false  
 }
 
+
 handleLoginClick() {
   this.setState({isLoggedIn: true});
 }
 
+
 handleLogoutClick() {
   this.setState({isLoggedIn: false});
 }
+
 
 submitnewevent = () => {
   const data = {
@@ -132,6 +151,8 @@ submitnewevent = () => {
     }
   });
 };
+
+
 
 viewapplications = (e,jobid) =>
 {
@@ -169,6 +190,24 @@ vieweventapplications = (e,eventid) =>
     })
 }
 
+applyforevent = (e,eventid) =>
+{
+  console.log("in view", eventid);
+  const data = {
+    eventid : eventid
+}
+console.log("in event", eventid)
+axios.post("http://localhost:8080/applyforevent", data).then(response => {
+console.log("applyreg",response.data);
+if(response.status === 200)
+{
+  this.setState({
+    eventmsg : "Applied successfully"
+  })
+}
+});
+    console.log("Apply");
+}
   
 render() {
 
@@ -203,7 +242,7 @@ render() {
      }
       
       function GuestGreeting(props) {
-        return <h1 align="center"> <h2>List of Events</h2></h1>;
+        return <h1 align="center"> <h2>Registered Events</h2></h1>;
       }
 
 
@@ -212,7 +251,7 @@ render() {
       return (
         <div  style ={{width:'50%'}}>
           <button align="center" class="btn btn-primary" onClick={props.onClick}>
-       Post New Event
+       List of Events
         </button>   
         </div>         
       );
@@ -220,9 +259,11 @@ render() {
     
     function LogoutButton(props) {
       return (
-        <button style = {{ width : "50%"}} onClick={props.onClick} class="btn btn-primary">
-          Back to List of Events
-                    </button>
+        <div  style ={{width:'50%'}}>
+        <button onClick={props.onClick} class="btn btn-primary">
+         View Registered events
+         </button>
+         </div>
       );
     }
 
@@ -234,89 +275,32 @@ render() {
         button = <LogoutButton onClick={this.handleLogoutClick} />;
   
         
-        if(this.state.authFlag === 1)
-        {
-        
-          this.setState({isLoggedIn: false});
-
-        }
        
         signupform = 
         (   
-          <div class="container register-form">  
-          {redirectVar}      
-      <div class="form">
-          <div class="note">
-              <h2>Post new Event</h2>
-          </div>
-
-          <div class="form-content" align="center">
-        
-              <div class="form-group">
-                 
-                  <input type="text" class="form-control" onChange = {this.eventnamehandler}  placeholder="Enter Event Name" name="eventname"  required/>
-              </div>
-              </div>
-             
-              <div class="form-content" align="center">
-    
-              <div class="form-group">
-                 
-                  <input type="text" class="form-control" onChange = {this.eventdescriptionhandler}  placeholder="Enter Event Description" name="eventdescription"  required/>
-              </div>
-             
-              </div>
-              <div class="form-content" align="center">
-         
-              <div class="form-group">
-                 
-                  <input type="text" class="form-control" onChange = {this.eventtimehandler}  placeholder="Enter Event Time" name="eventtime"  required/>
-             
-              </div>
-              </div>
-              <div class="form-content" align="center">
-         
-              <div class="form-group">
-                 
-                  <input type="text" class="form-control" onChange = {this.locationhandler}  placeholder="Enter Location" name="location"  required/>
-            
-              </div>
-              </div>
-              {/* <div class="form-content" align="center">
-          <div class="row">
-          <div class="col-md-6">
-              <div class="form-group">
-                 
-                  <input type="select" class="form-control" onChange = {this.eligibilty}  placeholder="Enter Eligibility" name="eligibility"  required/>
-              </div>
-              </div>
-              </div>
-              </div> */}
-
-              <div class="form-content" align="center">
-   
-              <div class="form-group">
-                 
-              <label for="cars">Choose the Eligibility:</label>
-    <select onChange = {this.eligibilty} id="cars" name="carlist" form="carform">
-    <option value="All">ALL</option>
-    <option value="SE Graduates">SE Graduates</option>
-    <option value="MBA">EE Graduates</option>
-    <option value="CE Graduates">CE Graduates</option>
-    </select>              
-              
-              </div>
-              </div>
-
-            </div>
+          this.state.allevents.map(event => {
+            return(
               <div>
-                 <button
-               class="btn btn-primary"
-                onClick={this.submitnewevent}
-              >Submit new JobPosting</button>
-              </div>
-              </div>
-        );   
+                {this.state.eventmsg}
+                {redirectVar}
+                <div className="row" key = {event.event_name}>	
+                <div className="well" style ={{height:'175px',width:'50%'}}>
+                    <h3>{event.event_name}</h3>
+                        <h4>{event.event_desc}</h4>
+                        <p> {event.event_time}, {event.location} </p>
+                        <button onClick={e =>
+                          this.applyforevent(
+                            e,
+                            event.event_id
+                          )} style = {{align :'right'}}> Apply </button>
+                       
+                </div>
+                </div> 
+                </div>   
+        )
+              })
+
+        )
       }
 
       else {
@@ -340,11 +324,11 @@ render() {
             <h3>{event.event_name}</h3>
                 <h4>{event.event_desc}</h4>
                 <p> {event.event_time}, {event.location} </p>
-                <button onClick={e =>
+                {/* <button onClick={e =>
                   this.vieweventapplications(
                     e,
                     event.event_id
-                  )} style = {{align :'right' , width : "50%" }}> View Applications</button>
+                  )} style = {{align :'right'}}> Apply </button> */}
                
         </div>
         </div> 
@@ -380,4 +364,4 @@ render() {
 
 }
 
-export default Events
+export default StudentEvents
