@@ -32,7 +32,7 @@ class Students extends Component {
     }
     //get the books data from backend  
     componentDidMount(){
-        axios.get('http://localhost:8080/getAllStudents')
+        axios.get(backend+'/getAllStudents')
                 .then((response) => {
                 //update the state with the response data
                 this.setState({

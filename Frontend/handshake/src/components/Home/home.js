@@ -23,7 +23,7 @@ class Home extends Component {
     }  
     //get the books data from backend  
     componentDidMount(){
-        axios.get('http://localhost:8080/home')
+        axios.get(backend+'/home')
                 .then((response) => {
                 //update the state with the response data
                 this.setState({
@@ -121,7 +121,7 @@ return (<h1>sss</h1>);
         }
 
 
-        await axios.post('http://localhost:8080/uploadFile/?studentId='+studentId+'&jobId='+job_id+'&type=resume',dataArray)
+        await axios.post(backend+'/uploadFile/?studentId='+studentId+'&jobId='+job_id+'&type=resume',dataArray)
         .then(response => {
             console.log("Status Code : ",response);
             if(response.status === 200){
@@ -141,7 +141,7 @@ return (<h1>sss</h1>);
             studentId : cookie.load('cookie').split(':')[1],
             resumePath:resumePath
            }
-       await axios.post('http://localhost:8080/saveApplication',data)
+       await axios.post(backend+'/saveApplication',data)
         .then(response => {
 
             console.log("data response : ",response.data);

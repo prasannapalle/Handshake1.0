@@ -14,7 +14,7 @@ class Events extends Component {
     }  
     //get the books data from backend  
     componentDidMount(){
-        axios.get('http://localhost:8080/events')
+        axios.get(backend+'/events')
                 .then((response) => {
                     console.log("in events");
                     console.log(response.data);

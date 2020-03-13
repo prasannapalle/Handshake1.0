@@ -6,7 +6,7 @@ import {backend} from '../../config.js';
 export function fetchProfile(payload) {
   console.log("dispatching the action")
   return function(dispatch){
-    axios.get('http://localhost:8080/profile/'+payload)
+    axios.get(backend+'/profile/'+payload)
                 .then((response) => dispatch({
                   type:FETCH_PROFILE,
                   payload : response.data
@@ -19,7 +19,7 @@ export function fetchProfile(payload) {
 export function saveExperience(payload){
   return function(dispatch){
     console.log('payload::', payload);
-    axios.put('http://localhost:8080/profile/editExperience/:'+ payload[0].student_exp_id , payload)
+    axios.put(backend+'/profile/editExperience/:'+ payload[0].student_exp_id , payload)
               .then((response)=> dispatch({
                   type: SAVE_EXPERIENCE,
                   payload : response
@@ -30,7 +30,7 @@ export function saveExperience(payload){
 
 export function saveEducation(payload){
   return function(dispatch){
-    axios.put('http://localhost:8080/profile/editEducation/:'+payload[0].student_education_id, payload)
+    axios.put(backend+'/profile/editEducation/:'+payload[0].student_education_id, payload)
               .then((response)=>dispatch({
                 type: SAVE_EDUCATION,
                 payload: response
@@ -46,7 +46,7 @@ export function saveStudentObject(payload){
   return async function(dispatch){
     console.log('fileData::',payload[0].fileData)
     var resumePath
-    await axios.post("http://localhost:8080/"+'uploadFile/?studentId='+payload[0].student_id+'&type=studentProfilePic',payload[0].fileData)
+    await axios.post(backend+"/"+'uploadFile/?studentId='+payload[0].student_id+'&type=studentProfilePic',payload[0].fileData)
     .then(response => {
     console.log("Status Code : ",response);
     if(response.status === 200){
@@ -57,7 +57,7 @@ export function saveStudentObject(payload){
     }
     });
     console.log('path:',resumePath)
-    await axios.put("http://localhost:8080/"+'profile/editstudentObject/:'+payload[0].student_id+'/?filePath='+resumePath, payload)
+    await axios.put(backend+"/"+'profile/editstudentObject/:'+payload[0].student_id+'/?filePath='+resumePath, payload)
     .then((response)=>dispatch({
     type: SAVE_STUD_OBJECT,
     payload : response
@@ -69,7 +69,7 @@ export function saveStudentObject(payload){
 export function deleteExperience(payload){
 
   return function(dispatch){
-    axios.delete('http://localhost:8080/profile/deleteExperience/'+payload)
+    axios.delete(backend+'/profile/deleteExperience/'+payload)
     .then((response) => dispatch({
       type : DELETE_EXPERIENCE, 
       payload : response
@@ -83,7 +83,7 @@ export function deleteExperience(payload){
 export function deleteEducation(payload){
 
   return function(dispatch){
-    axios.delete('http://localhost:8080/profile/deleteEducation/'+payload)
+    axios.delete(backend+'/profile/deleteEducation/'+payload)
     .then((response) => dispatch({
       type : DELETE_EDUCATION, 
       payload : response
@@ -97,7 +97,7 @@ export function deleteEducation(payload){
 export function auth(payload){
 
   return async function(dispatch){
-   await axios.post('http://localhost:8080/auth',payload)
+   await axios.post(backend+'/auth',payload)
     .then((response) => dispatch({
       type : LOGIN, 
       payload : response
@@ -112,7 +112,7 @@ export function auth(payload){
 export  function register(payload){
 
   return async function(dispatch){
-    await axios.post('http://localhost:8080/register',payload)
+    await axios.post(backend+'/register',payload)
     .then((response) =>  dispatch({
       type : REGISTER, 
       payload : response
@@ -132,7 +132,7 @@ export function editPersonalInfo(payload) {
     var resumePath;
     await axios
       .post(
-        "http://localhost:8080" +
+        backend+"" +
           "/uploadFile/?studentId=" +
           payload[0].studentId +
           "&type=studentProfilePic",
@@ -151,7 +151,7 @@ export function editPersonalInfo(payload) {
     console.log("path:", resumePath);
     await axios
       .post(
-        "http://localhost:8080" +
+        backend+"" +
           "/updatePersonalInfo/:" +
           payload[0].studentId +
           "/?filePath=" +

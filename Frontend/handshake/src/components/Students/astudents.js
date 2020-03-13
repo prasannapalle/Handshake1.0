@@ -73,7 +73,7 @@ class StudentList extends Component
       {
     jobid : jobid
       }
-      axios.get("http://localhost:8080/showstudentlist").then(response => {
+      axios.get(backend+"/showstudentlist").then(response => {
         console.log("Status Code : ", response.status);
         console.log("inside the show application",response.data);
         if (response.status === 200) 
@@ -110,7 +110,7 @@ class StudentList extends Component
        });
 
       console.log("data",data);
-      axios.post("http://localhost:8080/showstudentapplications", data).then(response => {
+      axios.post(backend+"/showstudentapplications", data).then(response => {
         console.log("Status Code : ", response.status);
         console.log("inside the update status",response.data);
         if (response.status === 200) 

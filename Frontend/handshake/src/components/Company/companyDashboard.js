@@ -86,7 +86,7 @@ componentWillMount() {
 
 componentDidMount()
 {
-    axios.get('http://localhost:8080/displayjobdetails')
+    axios.get(backend+'/displayjobdetails')
             .then((response) => {
                 console.log("This is getting printed", response.data);
                 const data = response.data["results"];
@@ -130,7 +130,7 @@ submitnewjob = () => {
     jobdescription:this.state.jobdescription,
     jobcategory:this.state.jobcategory
     }
-  axios.post("http://localhost:8080/submitnewjob", data).then(response => {
+  axios.post(backend+"/submitnewjob", data).then(response => {
     console.log("Status Code : ", response.data);
     if(response.data === "success")
     {
@@ -149,7 +149,7 @@ submitmyJourney = (event, id, name) => {
     id: id,
     myJourney: this.state.myJourney
   };
-  axios.post("http://localhost:8080/myjourney", data).then(response => {
+  axios.post(backend+"/myjourney", data).then(response => {
     console.log("Status Code : ", response.status);
     if (response.status === 200) {
       console.log("Updated carrierObjective details successfully");

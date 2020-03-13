@@ -51,7 +51,7 @@ class Applications extends Component {
     
     //get the books data from backend  
     componentDidMount(){
-        axios.get('http://localhost:8080/showapplicationshome')
+        axios.get(backend+'/showapplicationshome')
                 .then((response) => {
                 //update the state with the response data
                 console.log("response data",response.data);

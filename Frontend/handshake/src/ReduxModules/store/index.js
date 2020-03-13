@@ -1,6 +1,7 @@
 import { createStore, applyMiddleware, compose } from "redux";
 import thunk from 'redux-thunk';
 import rootReducer from "../reducers/index";
+import {backend} from '../../config.js';
 //import { forbiddenWordsMiddleware } from "../middleware/index";
 
 // const store = createStore(rootReducer,

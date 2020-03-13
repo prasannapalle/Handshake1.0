@@ -24,7 +24,7 @@ class Profile extends Component {
 
     componentDidMount(){
         console.log('+++++')
-        axios.get('http://localhost:8080/profile/'+ this.state.student_id)
+        axios.get(backend+'/profile/'+ this.state.student_id)
                 .then((response) => {
                 console.log()
                 this.setState({

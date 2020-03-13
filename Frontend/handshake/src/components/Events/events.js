@@ -82,7 +82,7 @@ componentWillMount() {
 componentDidMount()
 {
   
-        axios.get('http://localhost:8080/events')
+        axios.get(backend+'/events')
                 .then((response) => {
                     console.log("in events");
                     console.log(response.data);
@@ -124,7 +124,7 @@ submitnewevent = () => {
     eligibility:this.state.carlist,
  
     }
-  axios.post("http://localhost:8080/submitnewevent", data).then(response => {
+  axios.post(backend+"/submitnewevent", data).then(response => {
     console.log("data is : ", response.data);
     if(response.data === "success")
     {
@@ -178,7 +178,7 @@ register = (eventid) =>
         eventid : eventid
     }
     console.log("in event", eventid)
-    axios.post("http://localhost:8080/applyreg", data).then(response => {
+    axios.post(backend+"/applyreg", data).then(response => {
     console.log("applyreg",response.data);
 });
         console.log("registered");

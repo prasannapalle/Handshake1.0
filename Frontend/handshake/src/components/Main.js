@@ -18,7 +18,7 @@ import ViewEventApplications from './Events/viewEventApplications';
 import StudentEvents from './Events/studentevents';
 import CompanyProfile from './Company/companyprofile';
 import StudentList from './Students/astudents';
-import {backend} from '../../config.js';
+
 
 
 //Create a Main Component
