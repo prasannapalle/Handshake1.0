@@ -3,7 +3,7 @@ import axios from "axios";
 import dateFormat from 'dateformat';
 import Popup from "reactjs-popup";
 import {Redirect} from 'react-router';
-
+import {backend} from '../../config.js';
 
 class StudentEvents extends Component
 {
@@ -218,23 +218,32 @@ vieweventapplications = (e,eventid) =>
     })
 }
 
-applyforevent = (e,eventid) =>
+applyforevent = (e,eventid,eligibility) =>
 {
   console.log("in view", eventid);
   const data = {
-    eventid : eventid
+    eventid : eventid,
+    eligibility : eligibility
 }
 console.log("in event", eventid)
 axios.post("http://localhost:8080/applyforevent", data).then(response => {
 console.log("applyreg",response.data);
-if(response.status === 200)
+if(response.data === "success")
 {
   this.setState({
     eventmsg : "Applied successfully"
   })
 }
+else{
+  if(response.data === "fail")
+  {
+    this.setState({
+      eventmsg : "Not Eligible to Register"
+    })
+  }
+}
 });
-    console.log("Apply");
+    
 }
   
 render() {
@@ -311,14 +320,16 @@ render() {
               <div>
                 {redirectVar}
                 <div className="row" key = {event.event_name}>	
-                <div className="well" style ={{height:'175px',width:'50%'}}>
+                <div className="well" style ={{height:'250px',width:'50%'}}>
                     <h3>{event.event_name}</h3>
                         <h4>{event.event_desc}</h4>
                         <p> {event.event_time}, {event.location} </p>
+            <p>{event.eligibility}</p>
                         <button onClick={e =>
                           this.applyforevent(
                             e,
-                            event.event_id
+                            event.event_id,
+                            event.eligibility
                           )} style = {{align :'right'}}> Apply </button>
                        
                 </div>
@@ -347,10 +358,11 @@ render() {
       <div>
         {redirectVar}
         <div className="row" key = {event.event_name}>	
-        <div className="well" style ={{height:'175px',width:'50%'}}>
+        <div className="well" style ={{height:'250px',width:'50%'}}>
             <h3>{event.event_name}</h3>
                 <h4>{event.event_desc}</h4>
                 <p> {event.event_time}, {event.location} </p>
+    <p>{event.eligibility}</p>
                 {/* <button onClick={e =>
                   this.vieweventapplications(
                     e,

@@ -2,7 +2,8 @@ import React, {Component} from 'react';
 import '../../App.css';
 import axios from 'axios';
 import {Redirect} from 'react-router';
-import {Form,Col} from 'react-bootstrap'
+import {Form,Col} from 'react-bootstrap';
+import {backend} from '../../config.js';
 
 class CompanyProfile extends Component
 {

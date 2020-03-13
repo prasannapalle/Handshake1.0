@@ -3,6 +3,7 @@ import axios from "axios";
 import dateFormat from 'dateformat';
 import Popup from "reactjs-popup";
 import Card from "react-bootstrap";
+import {backend} from '../../config.js';
 class StudentList extends Component
 {
 
@@ -141,7 +142,7 @@ render()
 
                        return(
                         <div className="row" key = {student.student_id}>	
-                        <div className="well" style ={{height:'175px',width:'50%'}}>
+                        <div className="well" style ={{height:'250px',width:'50%'}}>
                     <h3>{student.first_name}, {student.last_name}</h3>
                                 <p><span style = {{fontWeight:'bold'}}>Objective: </span>{student.objective}</p> 
                                 <p> <span style = {{fontWeight:'bold'}}>Phone Number: </span>   {student.phone_no} </p>

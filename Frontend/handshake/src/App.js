@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import Main from './components/Main';
 import {BrowserRouter} from 'react-router-dom';
-
+import {backend} from '../../config.js';
 
 //App Component
 class App extends Component {

@@ -3,7 +3,8 @@ import '../../App.css';
 import axios from 'axios';
 import cookie from 'react-cookies';
 import {Redirect} from 'react-router';
-import { compareAsc, format } from 'date-fns'
+import { compareAsc, format } from 'date-fns';
+import {backend} from '../../config.js';
 
 class Profile extends Component {
     constructor(props){

@@ -5,7 +5,7 @@ import cookie from 'react-cookies';
 import {Redirect} from 'react-router';
 import {auth} from '../../ReduxModules/actions/index';
 import {connect} from 'react-redux';
-
+import {backend} from '../../config.js';
 //Define a Login Component
 class Login extends Component{
     //call the constructor method

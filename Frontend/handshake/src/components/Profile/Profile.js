@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
 import '../../App.css';
-import axios from 'axios';
 import cookie from 'react-cookies';
 import {Redirect} from 'react-router';
-import { compareAsc, format } from 'date-fns';
 import {fetchProfile,saveExperience,saveEducation, saveStudentObject, deleteExperience, deleteEducation} from '../../ReduxModules/actions/index';
 import {connect} from 'react-redux';
+import {backend} from '../../config';
 
 class Profile extends Component {
     constructor(){
@@ -23,7 +22,9 @@ class Profile extends Component {
             isEduAddEnabled:false,
             isExpAddEnabled:false,
             newStudentEducation:[],
-            newStudentExperience:[]
+            newStudentExperience:[],
+         
+            authflag :0
         }
         this.state = this.initialState;
         
@@ -41,7 +42,7 @@ class Profile extends Component {
         this.EditObjective = this.EditObjective.bind(this);
         this.EditContactDetails = this.EditContactDetails.bind(this);
         this.EditSkills = this.EditSkills.bind(this);
-        this.EditBasicDetails = this.EditBasicDetails.bind(this)
+        this.EditBasicDetails = this.EditBasicDetails.bind(this);
 
         this.deleteHandler = this.deleteHandler.bind(this);
     }  
@@ -59,6 +60,12 @@ class Profile extends Component {
         
         
     }
+
+    savepic = () =>
+    {
+this.setState({authflag : 1})
+    }
+
    async deleteHandler(id,type){
         if(type === "Experience"){
             
@@ -177,6 +184,9 @@ class Profile extends Component {
     
     
 
+
+    
+
     async saveHandler(type){
         console.log("in save:::",type )
         if (type === "Experience") {
@@ -251,6 +261,11 @@ class Profile extends Component {
     render(){
         
         //if not logged in go to login page
+        var img = null;
+        if(this.state.authflag === 1)
+        {
+            img = <img className="image--cover" src={require("../Util/shake.jpg")}/>
+        }
         
         let contactDetails =  this.props.studentObject?.map(obj => {
             return(
@@ -288,12 +303,14 @@ class Profile extends Component {
             )
         })
 
-
+        
         let basicDetails = this.props.studentObject?.map(obj=>{
             return (
                 <div key = {obj.student_id} className = "form-group">
-                    <img style = {{width:'75%'}} src ={require("../Util/Handshake.jpg") }></img> 
-                    
+
+                  {img}
+                   <input disabled = {!this.state.isBasicSaveEnabled} type="file" name="file"  />
+                    <button onClick={this.savepic}>Upload</button>
                     <p style = {{fontWeight: 'bold'}}>First Name:</p>
 					
                     <div  className="form-group">
@@ -315,6 +332,11 @@ class Profile extends Component {
                         <input  style ={{width:'90%',borderRadius:'7px'}} type = "date" disabled={!this.state.isBasicSaveEnabled}  onChange = {(e)=>this.changeHandler(e,obj.student_id,"dob","studentObject")} defaultValue = {obj.dob}/>
                      </div>
                      
+
+                     <div  className="form-group">
+                        <input  style ={{width:'90%',borderRadius:'7px'}} type = "date" disabled={!this.state.isBasicSaveEnabled}  onChange = {(e)=>this.updateprofilepic(e)}/>
+                     </div>
+
                 </div>
             )
         })

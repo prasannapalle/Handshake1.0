@@ -3,6 +3,8 @@ import axios from "axios";
 import dateFormat from 'dateformat';
 import Popup from "reactjs-popup";
 import Card from "react-bootstrap";
+import {backend} from '../../config.js';
+// import {img} from '../../HandshakeFiles/Resumes/26_3.pdf';
 class ViewApplications extends Component
 {
 
@@ -16,6 +18,7 @@ class ViewApplications extends Component
 
         this.statushandler = this.statushandler.bind(this);
         this.updatethestatus = this.updatethestatus.bind(this);
+        this.buildAvatarUrl = this.buildAvatarUrl.bind(this);
     }
 
 
@@ -26,6 +29,13 @@ class ViewApplications extends Component
        });
     }
 
+
+    buildAvatarUrl(fileName) {
+      console.log("calling jaffa", fileName);
+      return "http://localhost:8080" + "/file/" + fileName + "/?role=Resumes";
+    }
+
+    
     componentWillMount()
     {
       this.setState({
@@ -49,8 +59,7 @@ class ViewApplications extends Component
         {
             const data = response.data["results"];
             this.setState({
-                studentnames : data,
-                
+                studentnames : data
               })
           console.log("Updated carrierObjective details successfully");
         } else 
@@ -107,7 +116,7 @@ render()
 
                        return(
                         <div className="row" key = {student.student_id}>	
-                        <div className="well" style ={{height:'175px',width:'50%'}}>
+                        <div className="well" style ={{height:'250px',width:'50%'}}>
                     <h3>{student.first_name}, {student.last_name}</h3>
                                 <p><span style = {{fontWeight:'bold'}}>Objective: </span>{student.objective}</p> 
                                 <p> <span style = {{fontWeight:'bold'}}>Phone Number: </span>   {student.phone_no} </p>
@@ -120,7 +129,7 @@ render()
     <option value="Accepted">Accepted</option>
     </select>
 
-                       <div style={{fontWeight: 500}}>{this.state.statustext}</div>
+                       
                        <button style = {{float :'left',width :'150px',height:'30px',margin : '10px'}} onClick={(e)=>this.updatethestatus(student.student_id)}>Update the Status</button> 
                 
                        <Popup
@@ -144,6 +153,35 @@ render()
       </table>
       
       </Popup>
+
+
+      <Popup
+               trigger={
+                 <button
+                   className="aTag"
+                   style={{
+                     marginTop: "20px",
+                     align: "center",
+                     color: "#2c87f0"
+                   }}
+                 >
+                   Preview Resume{" "}
+                 </button>
+               }
+               modal
+               closeOnDocumentClick
+             >
+               <div>
+                 <embed
+                    src={this.buildAvatarUrl(
+                      student.studentJobResume
+                    )}
+                   width="600"
+                   height="700"
+                   type="application/pdf"
+                 ></embed>
+               </div>
+             </Popup>
                                 {/* <button  style = {{float :'right',width :'100px',height:'30px'}} onClick = {(e)=>this.viewProfile(student.student_id)}> View Profile</button> */}
                                 </p>
                         </div>
@@ -157,6 +195,7 @@ render()
 
     return(
      <div align="center">
+       <div style={{fontWeight: 500, color : 'green'}}><h3>{this.state.statustext}</h3></div>
     <div>{msgstudent}</div>
     </div>
     );

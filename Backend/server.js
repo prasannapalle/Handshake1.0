@@ -5,6 +5,8 @@ var bodyParser = require('body-parser');
 var path = require('path');
 const util = require('util');
 var cors = require('cors');
+var multer = require("multer");
+var fs = require("fs");
 
 
 var connection = mysql.createConnection({
@@ -65,18 +67,19 @@ app.post('/submitnewjob', async function(request, response) {
 
 
 console.log("datase from frontend"+request.body);
-    var sql = "INSERT INTO `job_postings`(`fk_company_id`, `category`,`postion`,`job_desc`,`job_location`,`job_long_desc`,`job_postingdate`,`application_deadline`,`salary`) VALUES ('" + request.session.company_id + "','" + jobtitle + "','" +jobtitle +"','"+ jobdescription + "','"+ jobdescription + "','" + location  +  "','" + posting + "','" + applicationdeadline + "','" + salary + "')";
 
+    var sql = "INSERT INTO `job_postings`(`fk_company_id`, `category`,`postion`,`job_desc`,`job_location`,`job_postingdate`,`application_deadline`,`salary`) VALUES ('" + request.session.company_id + "','" + category + "','" +jobtitle +"','"+ jobdescription + "','" + location  +  "','" + posting + "','" + applicationdeadline + "','" + salary + "')";
     connection.query(sql , async function(error, results) 
     {
         var results = await getResults(sql);
-    });
-
-    console.log("results from job_postings",results);
+        console.log("results from job_postings",results);
     if(results)
     {
     response.send("success");
     }
+    });
+
+    
 });
 
 
@@ -327,6 +330,8 @@ app.get('/profile/:id', function(request, response) {
 	//response.end();
 });
 
+
+
 var studentids = [];
 app.post('/showapplication',async function(request,response)
 {
@@ -432,17 +437,30 @@ app.post('/applyforevent',async function(request,response){
 
     var studentId = request.session.company_id;
     var eventid = request.body.eventid;
+    
+    var eligibility = request.body.eligibility;
+    console.log("eligibility", eligibility);
     console.log("studentid",studentId);
     console.log("eventid",eventid);
     var values  = ["applied",studentId,eventid];
+    var selectvalues = [studentId];
+    var selectquery = "select course from student_educational_details where fk_student_id = ? "
+    studentresults = await getResults(selectquery,selectvalues);
+    console.log("studentresults",studentresults[0].course);
+    
+    if(studentresults[0].course === eligibility || eligibility === "All")
+    {
     var insertQuery = "insert into map_student_events(application_status,fk_student_id,fk_event_id) values ('" + "applied" + "','"+studentId+"','" + eventid + "')";
     console.log("insertQuery",insertQuery);
     results = await getResults(insertQuery);
+    response.send("success");
+    }
+    else
+    {
+        response.send("fail");
+    }
    // values = [1]
    console.log("affected rows",results.affectedRows);
-
-   
-    response.send(""+results.affectedRows);
 })
 
 
@@ -613,7 +631,6 @@ app.get('/error',function(rqst,response){
     response.render('pages/error');
 });
 
-app.listen(8080);
 
 
 app.get('/tabHeaders',async function(request,response){
@@ -764,3 +781,121 @@ app.post('/eventnamefilter',async function(request,response){
    // console.log('postings:'+jobPostings.job_desc)
 	response.send(events);
 })
+
+var fileStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+    console.log('req in storage',req.query.id)
+    cb(null, './HandshakeFiles/Resumes')
+  },
+  filename: function (req, file, cb) {
+    cb(null, req.query.studentId+'_'+req.query.jobId+'.pdf')
+  }
+ })
+
+
+ var studentProfileStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+    console.log('req in storage',req.query)
+    cb(null, './HandshakeFiles/students')
+  },
+  filename: function (req, file, cb) {
+    cb(null, req.query.studentId+'.jpg')
+  }
+ })
+
+ var companyProfileStorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+    console.log('req in storage',req.query.studentId)
+    cb(null, './HandshakeFiles/company')
+  },
+  filename: function (req, file, cb) {
+    cb(null, req.query.companyId+'.jpg')
+  }
+ })
+
+
+var upload = multer({storage:fileStorage}).single('file')
+
+var imageUpload = multer({ storage: studentProfileStorage }).single('studentProfileStorage')
+
+var companyImageUpload = multer({storage:companyProfileStorage}).single('companyProfileStorage')
+
+
+app.post('/uploadFile',async function(req,res){
+    var studentId = req.query.studentId;
+    console.log("studentid",studentId);
+    console.log("inside upload file");
+    if(req.query.type === 'resume'){
+        console.log("in query type",req.query.type);
+    upload(req, res, function (err) {
+        if (err instanceof multer.MulterError) {
+           console.log('error',err)
+            return res.status(500).json(err)
+        } else if (err) {
+           console.log('error',err)
+            return res.status(500).json(err)
+        }
+   console.log('response',req.file)
+
+   values = [req.file.filename,studentId];
+   var sql = 'update  students set studentJobResume = ? where `student_id` = ?';
+
+   connection.query(sql , async function(error, results) 
+   {
+       var results = await getResults(sql,values);
+       console.log("in company events",results);
+   });
+   
+   return res.status(200).send(req.file)
+    })
+    }else if(req.query.type === 'studentProfilePic'){
+        console.log('Image uplaoding',req.body)
+        imageUpload(req, res, function (err) {
+            if (err instanceof multer.MulterError) {
+                console.log('error',err)
+                return res.status(500).json(err)
+            } else if (err) {
+               console.log('error',err)
+                return res.status(500).json(err)
+            }
+       console.log('response',req.file);
+       return res.status(200).send(req.file)
+    })
+ }else if(req.query.type === 'companyProfilePic'){
+    console.log('Image uplaoding')
+    companyImageUpload(req, res, function (err) {
+        if (err instanceof multer.MulterError) {
+            console.log('error',err)
+            return res.status(500).json(err)
+        } else if (err) {
+           console.log('error',err)
+            return res.status(500).json(err)
+        }
+   console.log('response',res.file)
+   return res.status(200).send(req.file)
+ })
+ }
+ })
+
+
+ app.get("/file/:name", (req, res) => {
+    const name = req.params.name;
+    console.log("/file req.params: " + JSON.stringify(req.params));
+    const path = __dirname + "/HandshakeFiles/" + req.query.role + "/" + name;
+    console.log("/PATHHH" + path);
+    try {
+      if (fs.existsSync(path)) {
+        res.sendFile(path);
+      } else {
+        res.status(400);
+        res.statusMessage("Not Found");
+        res.end();
+      }
+    } catch (err) {
+      res.status(500);
+      console.log("/file/:name error: " + err);
+      res.end();
+    }
+  });
+
+ app.listen(8080);

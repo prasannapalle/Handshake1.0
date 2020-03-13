@@ -13,3 +13,5 @@ export const DELETE_EXPERIENCE = "DELETE_EXPERIENCE";
 export const LOGIN = "LOGIN";
 
 export const REGISTER = "REGISTER";
+
+export const EDIT_PERSONALINFO = "EDIT_PROFILEPIC";

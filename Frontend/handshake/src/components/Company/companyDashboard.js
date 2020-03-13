@@ -3,6 +3,7 @@ import axios from "axios";
 import dateFormat from 'dateformat';
 import Popup from "reactjs-popup";
 import {Redirect} from 'react-router';
+import {backend} from '../../config.js';
 
 
 class CompanyDashboard extends Component
@@ -190,9 +191,6 @@ render() {
            redirectVar = <Redirect to="/viewapplications" />
 
    }
-
-  
-
    
     function AddnewPost(props) {
       const isLoggedIn = props.isLoggedIn;
@@ -337,10 +335,8 @@ render() {
 
    this.state.msg.map(job => {
           return(
-            
-
             <div className="row" key =  {job.category}>	
-            <div className="well" style ={{height:'175px',width:'50%'}}>
+            <div className="well" style ={{height:'200px',width:'50%'}}>
                     <h3>{job.postion}</h3>
                     <p> {job.job_desc}, {job.job_location} </p>
                     <button style ={{width:'30%'}} class="btn btn-primary" onClick={event =>

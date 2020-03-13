@@ -4,7 +4,7 @@ import axios from 'axios';
 import cookie from 'react-cookies';
 import {Redirect} from 'react-router';
 import Popup from "reactjs-popup";
-
+import {backend} from '../../config.js';
 
 class Students extends Component {
     constructor(){
@@ -55,7 +55,7 @@ class Students extends Component {
         let details = this.state.students.map(student => {
             return(
                 <div className="row" key = {student.student_id}>	
-				<div className="well" style ={{height:'175px',width:'80%'}}>
+				<div className="well" style ={{height:'250px',width:'80%'}}>
             <h3>{student.first_name}, {student.last_name}</h3>
                         <p><span style = {{fontWeight:'bold'}}>Objective: </span>{student.objective}</p> 
                         <p> <span style = {{fontWeight:'bold'}}>College: </span>   {student.college_name} 

@@ -3,7 +3,7 @@ import axios from "axios";
 import dateFormat from 'dateformat';
 import Popup from "reactjs-popup";
 import {Redirect} from 'react-router';
-
+import {backend} from '../../config.js';
 
 class Events extends Component
 {
@@ -327,9 +327,9 @@ render() {
               <label for="cars">Choose the Eligibility:</label>
     <select onChange = {this.eligibilty} id="cars" name="carlist" form="carform">
     <option value="All">ALL</option>
-    <option value="SE Graduates">SE Graduates</option>
-    <option value="MBA">EE Graduates</option>
-    <option value="CE Graduates">CE Graduates</option>
+    <option value="SE">SE Graduates</option>
+    <option value="EE">EE Graduates</option>
+    <option value="CE">CE Graduates</option>
     </select>              
               
               </div>
@@ -363,7 +363,7 @@ render() {
       <div>
         {redirectVar}
         <div className="row" key = {event.event_name}>	
-        <div className="well" style ={{height:'175px',width:'50%'}}>
+        <div className="well" style ={{height:'250px',width:'50%'}}>
             <h3>{event.event_name}</h3>
                 <h4>{event.event_desc}</h4>
                 <p> {event.event_time}, {event.location} </p>

@@ -1,6 +1,7 @@
-import { SAVE_EXPERIENCE,FETCH_PROFILE, SAVE_STUD_OBJECT, SAVE_EDUCATION, DELETE_EDUCATION, DELETE_EXPERIENCE,LOGIN,REGISTER} from "../constants/action-types";
+import { SAVE_EXPERIENCE,FETCH_PROFILE, SAVE_STUD_OBJECT, SAVE_EDUCATION, DELETE_EDUCATION, DELETE_EXPERIENCE,LOGIN,REGISTER,EDIT_PERSONALINFO} from "../constants/action-types";
 import axios from 'axios';
 import cookie from 'react-cookies';
+import {backend} from '../../config.js';
 
 export function fetchProfile(payload) {
   console.log("dispatching the action")
@@ -42,16 +43,27 @@ export function saveEducation(payload){
 
 export function saveStudentObject(payload){
 
-  return function(dispatch){
-    axios.put('http://localhost:8080/profile/editstudentObject/:'+payload[0].student_id, payload)
-              .then((response)=>dispatch({
-                type: SAVE_STUD_OBJECT,
-                payload : response
-              }));
-                  
-              
-              dispatch(fetchProfile(payload[0].student_id))
-  }
+  return async function(dispatch){
+    console.log('fileData::',payload[0].fileData)
+    var resumePath
+    await axios.post("http://localhost:8080/"+'uploadFile/?studentId='+payload[0].student_id+'&type=studentProfilePic',payload[0].fileData)
+    .then(response => {
+    console.log("Status Code : ",response);
+    if(response.status === 200){
+    resumePath = response.data.filename
+    }
+    else{
+    console.log('Error in saving application');
+    }
+    });
+    console.log('path:',resumePath)
+    await axios.put("http://localhost:8080/"+'profile/editstudentObject/:'+payload[0].student_id+'/?filePath='+resumePath, payload)
+    .then((response)=>dispatch({
+    type: SAVE_STUD_OBJECT,
+    payload : response
+    }));
+    dispatch(fetchProfile(payload[0].student_id))
+    }
 }
 
 export function deleteExperience(payload){
@@ -109,4 +121,48 @@ export  function register(payload){
     //dispatch(fetchProfile(1))
   }
 
+}
+
+
+export function editPersonalInfo(payload) {
+  console.log("dispatching the editPersonalInfo action", payload);
+
+  return async function(dispatch) {
+    console.log("fileData::", payload);
+    var resumePath;
+    await axios
+      .post(
+        "http://localhost:8080" +
+          "/uploadFile/?studentId=" +
+          payload[0].studentId +
+          "&type=studentProfilePic",
+        payload[0].studentProfilePic
+      )
+      .then(response => {
+        console.log("Status Code : ", response);
+        if (response.status === 200) {
+          resumePath = response.data.filename;
+          payload[0].studentProfilePic = resumePath;
+          console.log("payload", payload);
+        } else {
+          console.log("Error in saving application");
+        }
+      });
+    console.log("path:", resumePath);
+    await axios
+      .post(
+        "http://localhost:8080" +
+          "/updatePersonalInfo/:" +
+          payload[0].studentId +
+          "/?filePath=" +
+          resumePath,
+        payload
+      )
+      .then(response =>
+        dispatch({
+          type: EDIT_PERSONALINFO,
+          payload: response.data
+        })
+      );
+  }
 }

@@ -185,3 +185,12 @@ input[disabled]{
     .profileImage{
       width:'25%'
     }
+
+    .image--cover {
+      display: inline-block;
+      position: relative;
+      width: 200px;
+      height: 200px;
+      overflow: hidden;
+      border-radius: 50%;
+    }
